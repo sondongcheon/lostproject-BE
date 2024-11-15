@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: root
+
+server:
+  servlet:
+    context-path: /api
