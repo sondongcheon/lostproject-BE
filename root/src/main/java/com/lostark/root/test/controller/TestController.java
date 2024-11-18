@@ -33,4 +33,10 @@ public class TestController {
     public String testFive() {
         return "testFive";
     }
+
+    @GetMapping("/six")
+    public String testSix() {
+        return "testSix";
+    }
+
 }
