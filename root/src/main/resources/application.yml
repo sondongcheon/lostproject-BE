@@ -5,3 +5,5 @@ spring:
 server:
   servlet:
     context-path: /api
+    encoding:
+      force-response: true
