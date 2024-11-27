@@ -2,6 +2,7 @@ package com.lostark.root.action.db.dto.res.APIres;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +16,7 @@ public class ApiAuctionRes {
     public List<Item> Items;
 
     @Getter
+    @ToString
     public static class Item {
         public String Name;
         public String Grade;

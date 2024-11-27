@@ -8,11 +8,13 @@ import java.util.List;
 
 @Getter
 @Builder
+@ToString
 public class ApiAuctionReq {
 
     private int itemGradeQuality;
     private Integer itemUpgradeLevel;
     private Integer itemTradeAllowCount;
+    @Setter
     private List<EtcOption> etcOptions;
     private String sort;
     @Setter
@@ -25,19 +27,20 @@ public class ApiAuctionReq {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @ToString
     @Setter
     @Builder
     public static class EtcOption {
 
-        private int firstOption;
-        private int secondOption;
-        private int minValue;
-        private int maxValue;
+        private Integer firstOption;
+        private Integer secondOption;
+        private Integer minValue;
+        private Integer maxValue;
 
         static public EtcOption fromSelectEtcOption(SelectOptionReq.EtcOption etcOption) {
             return EtcOption.builder()
                     .firstOption(7)
-                    .secondOption(etcOption.getOption())
+                    .secondOption(etcOption.getOption() == 0 ? null : etcOption.getOption())
                     .minValue(etcOption.getValue())
                     .maxValue(etcOption.getValue()).build();
         }
