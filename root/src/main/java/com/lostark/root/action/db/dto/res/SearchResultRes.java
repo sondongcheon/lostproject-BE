@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Getter
+@ToString
 public class SearchResultRes {
 
     public String name;
