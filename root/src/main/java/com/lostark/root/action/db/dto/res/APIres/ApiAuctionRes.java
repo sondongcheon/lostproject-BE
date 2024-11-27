@@ -1,14 +1,20 @@
 package com.lostark.root.action.db.dto.res.APIres;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ApiAuctionResponse {
+@Getter
+@Setter
+public class ApiAuctionRes {
     public int PageNo;
     public int PageSize;
     public int TotalCount;
     public List<Item> Items;
 
+    @Getter
     public static class Item {
         public String Name;
         public String Grade;
@@ -19,6 +25,7 @@ public class ApiAuctionResponse {
         public AuctionInfo AuctionInfo;
         public List<Option> Options;
 
+        @Getter
         public static class AuctionInfo {
             public int StartPrice;
             public int BuyPrice;
@@ -28,9 +35,10 @@ public class ApiAuctionResponse {
             public int BidStartPrice;
             public boolean isCompetitive;
             public int TradeAllowCount;
-            public int UpgradeLevel;
+            public int upgradeLevel;
         }
 
+        @Getter
         public static class Option {
             public String Type;
             public String OptionName;

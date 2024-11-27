@@ -2,19 +2,15 @@ package com.lostark.root.action.db.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
 
 @Getter
+@Setter
 @ToString
 public class SearchOptionReq {
-
-    @JsonProperty("ItemLevelMin")
-    private int itemLevelMin;
-
-    @JsonProperty("ItemLevelMax")
-    private int itemLevelMax;
 
     @JsonProperty("ItemGradeQuality")
     private int itemGradeQuality;
@@ -43,15 +39,14 @@ public class SearchOptionReq {
     @JsonProperty("ItemGrade")
     private String itemGrade;
 
-    @JsonProperty("ItemName")
-    private String itemName;
-
     @JsonProperty("PageNo")
     private int pageNo;
 
     @JsonProperty("SortCondition")
     private String sortCondition;
 
+    @Getter
+    @Setter
     public static class EtcOption {
 
         @JsonProperty("FirstOption")
