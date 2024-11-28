@@ -63,18 +63,18 @@ public class SearchResultRes {
         }
     }
 
-    static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes) {
+    static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes, int duplication) {
         List<Option> optionList = new ArrayList<>();
-        for (int i = 0; i < apiAuctionRes.getItems().getFirst().getOptions().size(); i++) {
-            optionList.add(Option.fromApiResOption(apiAuctionRes.getItems().getFirst().getOptions().get(i)));
+        for (int i = 0; i < apiAuctionRes.getItems().get(duplication).getOptions().size(); i++) {
+            optionList.add(Option.fromApiResOption(apiAuctionRes.getItems().get(duplication).getOptions().get(i)));
         }
 
         return SearchResultRes.builder()
-                .name(apiAuctionRes.getItems().getFirst().getName())
-                .grade(apiAuctionRes.getItems().getFirst().getGrade())
-                .icon(apiAuctionRes.getItems().getFirst().getIcon())
-                .gradeQuality(apiAuctionRes.getItems().getFirst().getGradeQuality())
-                .auctionInfo(AuctionInfo.fromApiResAuctionInfo(apiAuctionRes.getItems().getFirst().getAuctionInfo()))
+                .name(apiAuctionRes.getItems().get(duplication).getName())
+                .grade(apiAuctionRes.getItems().get(duplication).getGrade())
+                .icon(apiAuctionRes.getItems().get(duplication).getIcon())
+                .gradeQuality(apiAuctionRes.getItems().get(duplication).getGradeQuality())
+                .auctionInfo(AuctionInfo.fromApiResAuctionInfo(apiAuctionRes.getItems().get(duplication).getAuctionInfo()))
                 .options(optionList).build();
     }
 }

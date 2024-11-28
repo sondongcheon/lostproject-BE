@@ -16,4 +16,6 @@ public interface ActionService {
     public ApiAuctionRes getActionResult3(List<SearchOptionReq> searchOptionReqList);
 
     public SearchResultRes[] getActionResult4(List<SelectOptionReq> selectOptionReqList);
+
+    public SearchResultRes[] getActionResult5(List<SelectOptionReq> selectOptionReqList);
 }

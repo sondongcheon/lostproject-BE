@@ -46,4 +46,10 @@ public class ActionController {
 
         return Response.of(HttpStatus.OK, "gd", actionService.getActionResult4(selectOptionReqList));
     }
+
+    @PostMapping("/test5")
+    public Response<SearchResultRes[]> test5(@RequestBody List<SelectOptionReq> selectOptionReqList) {
+
+        return Response.of(HttpStatus.OK, "gd", actionService.getActionResult5(selectOptionReqList));
+    }
 }
