@@ -317,6 +317,7 @@ public class ActionServiceImpl implements ActionService {
 
     @Override
     public SearchResultRes[] getActionResult5(List<SelectOptionReq> selectOptionReqList) {
+        System.out.println("실행은 됫나");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> numbering = new ArrayList<>();
         List<Integer> boxNumber = new ArrayList<>();
