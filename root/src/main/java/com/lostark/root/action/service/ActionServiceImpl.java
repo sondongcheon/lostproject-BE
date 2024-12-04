@@ -317,6 +317,7 @@ public class ActionServiceImpl implements ActionService {
 
     @Override
     public SearchResultRes[] getActionResult5(List<SelectOptionReq> selectOptionReqList) {
+        System.out.println("실행은 됫나");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> numbering = new ArrayList<>();
         List<Integer> boxNumber = new ArrayList<>();
@@ -453,8 +454,9 @@ public class ActionServiceImpl implements ActionService {
         }
 
         for (int i = 0; i < 5; i++) {
-            if (isExampleBool[i] || selectOptionReqList.get(i).getCategoryCode() == 0) continue;
+            if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().getFirst().getOption() == 0)) continue;
 
+            System.out.println("i = " + i);
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -465,6 +467,7 @@ public class ActionServiceImpl implements ActionService {
 
             ResponseEntity<ApiAuctionRes> response = restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class);
 
+            System.out.println("response.getBody().getItems().toString() = " + response.getBody().getItems().toString());
             int duplication = 0;
             if( i == 1 && searchResultRes[2] != null && searchResultRes[2].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response.getBody()).Items.getFirst().getAuctionInfo().getEndDate())) {
                 duplication = 1;
