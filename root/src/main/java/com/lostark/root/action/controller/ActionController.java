@@ -3,6 +3,7 @@ package com.lostark.root.action.controller;
 import com.lostark.root.action.db.dto.req.SearchOptionReq;
 import com.lostark.root.action.db.dto.req.SelectOptionReq;
 import com.lostark.root.action.db.dto.res.APIres.ApiAuctionRes;
+import com.lostark.root.action.db.dto.res.SearchFinalRes;
 import com.lostark.root.action.db.dto.res.SearchResultRes;
 import com.lostark.root.action.service.ActionService;
 import com.lostark.root.common.Response;
@@ -48,7 +49,7 @@ public class ActionController {
     }
 
     @PostMapping("/test5")
-    public Response<SearchResultRes[]> test5(@RequestBody List<SelectOptionReq> selectOptionReqList) {
+    public Response<SearchFinalRes> test5(@RequestBody List<SelectOptionReq> selectOptionReqList) {
 
         return Response.of(HttpStatus.OK, "gd", actionService.getActionResult5(selectOptionReqList));
     }

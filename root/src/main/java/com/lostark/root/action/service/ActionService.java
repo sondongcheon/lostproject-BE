@@ -3,6 +3,7 @@ package com.lostark.root.action.service;
 import com.lostark.root.action.db.dto.req.SearchOptionReq;
 import com.lostark.root.action.db.dto.req.SelectOptionReq;
 import com.lostark.root.action.db.dto.res.APIres.ApiAuctionRes;
+import com.lostark.root.action.db.dto.res.SearchFinalRes;
 import com.lostark.root.action.db.dto.res.SearchResultRes;
 
 import java.util.List;
@@ -17,5 +18,5 @@ public interface ActionService {
 
     public SearchResultRes[] getActionResult4(List<SelectOptionReq> selectOptionReqList);
 
-    public SearchResultRes[] getActionResult5(List<SelectOptionReq> selectOptionReqList);
+    public SearchFinalRes getActionResult5(List<SelectOptionReq> selectOptionReqList);
 }

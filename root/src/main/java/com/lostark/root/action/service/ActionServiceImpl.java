@@ -4,6 +4,7 @@ import com.lostark.root.action.db.dto.req.APIreq.ApiAuctionReq;
 import com.lostark.root.action.db.dto.req.SearchOptionReq;
 import com.lostark.root.action.db.dto.req.SelectOptionReq;
 import com.lostark.root.action.db.dto.res.APIres.ApiAuctionRes;
+import com.lostark.root.action.db.dto.res.SearchFinalRes;
 import com.lostark.root.action.db.dto.res.SearchResultRes;
 import lombok.Getter;
 import lombok.Setter;
@@ -316,7 +317,7 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public SearchResultRes[] getActionResult5(List<SelectOptionReq> selectOptionReqList) {
+    public SearchFinalRes getActionResult5(List<SelectOptionReq> selectOptionReqList) {
         System.out.println("실행은 됫나");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> numbering = new ArrayList<>();
@@ -442,6 +443,7 @@ public class ActionServiceImpl implements ActionService {
         }
 
         SearchResultRes[] searchResultRes = new SearchResultRes[5];
+        List<SearchResultRes>[] lists = new List[6];
 
         for (int i = 0; i < size; i++) {
             if( i > 0 && searchList[numOption.get(selectNum2)[i]][permList.get(selectNum)[i]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[numOption.get(selectNum2)[i-1]][permList.get(selectNum)[i-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
@@ -451,12 +453,20 @@ public class ActionServiceImpl implements ActionService {
             } else {
                 searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum2)[i]][permList.get(selectNum)[i]], 0);
             }
+
+            List<SearchResultRes> searchResultResList = new ArrayList<>();
+            for (int j = 0; j < searchList[numOption.get(selectNum2)[i]][permList.get(selectNum)[i]].getItems().size(); j++) {
+                searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum2)[i]][permList.get(selectNum)[i]], j) );
+            }
+            lists[boxNumber.get(i)] = searchResultResList;
         }
 
         for (int i = 0; i < 5; i++) {
-            if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().getFirst().getOption() == 0)) continue;
+            if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().get(0).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(1).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(2).getOption() == 0)) continue;
 
-            System.out.println("i = " + i);
+            System.out.println(selectOptionReqList.get(i).getEtcOptionList().get(0).toString());
+            System.out.println(selectOptionReqList.get(i).getEtcOptionList().get(1).toString());
+            System.out.println(selectOptionReqList.get(i).getEtcOptionList().get(2).toString());
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -466,6 +476,10 @@ public class ActionServiceImpl implements ActionService {
             HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), headers);
 
             ResponseEntity<ApiAuctionRes> response = restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class);
+            System.out.println(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)).getEtcOptions().get(0).toString());
+            System.out.println(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)).getEtcOptions().get(1).toString());
+            System.out.println(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)).getEtcOptions().get(2).toString());
+
 
             System.out.println("response.getBody().getItems().toString() = " + response.getBody().getItems().toString());
             int duplication = 0;
@@ -480,11 +494,19 @@ public class ActionServiceImpl implements ActionService {
             }
             searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response.getBody()), duplication);
 
+            List<SearchResultRes> searchResultResList = new ArrayList<>();
+            for (int j = 0; j < response.getBody().getItems().size(); j++) {
+                searchResultResList.add( SearchResultRes.fromApiRes( Objects.requireNonNull(response.getBody()), j) );
+            }
+            lists[i] = searchResultResList;
+
         }
+
+        SearchFinalRes searchFinalRes = new SearchFinalRes(searchResultRes, lists);
 
         //고정값도 넣어줘야 함
 
-        return searchResultRes;
+        return searchFinalRes;
     }
 
 
