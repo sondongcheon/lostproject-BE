@@ -1,6 +1,6 @@
-package com.lostark.root.action.db.dto.req.APIreq;
+package com.lostark.root.auction.db.dto.req.APIreq;
 
-import com.lostark.root.action.db.dto.req.SelectOptionReq;
+import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import lombok.*;
 
 import java.util.ArrayList;

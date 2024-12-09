@@ -1,4 +1,4 @@
-package com.lostark.root.action.db.dto.req;
+package com.lostark.root.auction.db.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.lostark.root.action.db.dto.res;
+package com.lostark.root.auction.db.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
