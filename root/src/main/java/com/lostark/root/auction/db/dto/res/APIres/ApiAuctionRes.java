@@ -1,4 +1,4 @@
-package com.lostark.root.action.db.dto.res.APIres;
+package com.lostark.root.auction.db.dto.res.APIres;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
-package com.lostark.root.action.db.dto.res;
+package com.lostark.root.auction.db.dto.res;
 
-import com.lostark.root.action.db.dto.res.APIres.ApiAuctionRes;
+import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
 import lombok.*;
 
 import java.time.LocalDateTime;
