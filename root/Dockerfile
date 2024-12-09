@@ -11,4 +11,4 @@ ENV JASYPT_KEY=${JASYPT_KEY}
 COPY ${JAR_FILE} app.jar
 
 # Spring Boot 애플리케이션 실행 시, JASYPT_KEY를 시스템 프로퍼티로 전달
-ENTRYPOINT ["java", "-Djasypt.encryptor.password=${JASYPT_KEY}", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-DJASYPT_KEY=${JASYPT_KEY}", "-jar", "app.jar"]
