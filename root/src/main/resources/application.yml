@@ -7,3 +7,21 @@ server:
     context-path: /api
     encoding:
       force-response: true
+
+test:
+  one: ENC(i4DhIbVLDKgS42Tfq/y9SHgEfEDTgjru)
+
+#  datasource:
+#    url: ENC(lOFswiNgkkKFVYcwvYjD6SjBxBjdd98SV7GocEaulhDjhhQbtUO9uoSQB5O9uCg8ClK5mzgXiWg=)
+#    username: ENC(9m9o70ex2187SXtUNb1JQA==)
+#    password: ENC(Wstc5/so3a0smxXFvZP5pvCfQhdj10v007R2AGIcNY8=)
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    hikari:
+#      maximum-pool-size: 30
+#      minimum-idle: 30
+
+#  jpa:
+#    hibernate:
+#      naming:
+#        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+#      ddl-auto: none # 엔티티 변경 시 데이터베이스 업데이트
