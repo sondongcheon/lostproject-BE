@@ -29,7 +29,7 @@ public class SecurityConfig {
 
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "https://lostroot.shop"));
+                        config.setAllowedOrigins(List.of("http://localhost:3000", "https://lostroot.shop", "http://221.145.113.28/"));
                         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                         config.setAllowCredentials(true);
                         config.setAllowedHeaders(List.of("*"));
@@ -59,6 +59,9 @@ public class SecurityConfig {
                         // 개발용 페이지
                         .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
                         .permitAll()
+
+                        //test
+                        .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
 
                         //board
                         .requestMatchers(HttpMethod.GET, "/board/notice/**").permitAll()
