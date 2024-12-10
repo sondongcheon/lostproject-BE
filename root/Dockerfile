@@ -10,5 +10,5 @@ ENV JASYPT_KEY=${JASYPT_KEY}
 # JAR 파일을 컨테이너로 복사
 COPY ${JAR_FILE} app.jar
 
-# Spring Boot 애플리케이션 실행 시, JASYPT_KEY를 시스템 프로퍼티로 전달
-ENTRYPOINT ["java", "-DJASYPT_KEY=${JASYPT_KEY}", "-jar", "app.jar"]
+# 환경 변수 JASYPT_KEY를 JVM 시스템 프로퍼티로 전달
+ENTRYPOINT ["sh", "-c", "java -DJASYPT_KEY=$JASYPT_KEY -jar app.jar"]
