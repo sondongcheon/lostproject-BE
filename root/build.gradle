@@ -45,6 +45,11 @@ dependencies {
 
 //	Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	//SpringSecurity
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.springframework.security:spring-security-test'
+
 }
 
 tasks.named('test') {
