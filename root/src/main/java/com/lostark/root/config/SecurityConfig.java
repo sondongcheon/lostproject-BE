@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
 
                         //board
-                        .requestMatchers(HttpMethod.GET, "/board/notice/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/board/notice/*", "/board/notice/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/board/notice/**").permitAll()
 
                         //auction

@@ -5,9 +5,14 @@ import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
 import com.lostark.root.auction.db.dto.res.SearchFinalRes;
 import com.lostark.root.auction.db.dto.res.SearchResultRes;
+import com.lostark.root.exception.CustomException;
+import com.lostark.root.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -16,10 +21,15 @@ import java.util.stream.IntStream;
 
 
 @Service
+@Slf4j
 public class AuctionServiceImpl implements AuctionService {
 
+    @Value("${apikey.my}")
+    private String apikey;
+
     @Override
-    public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type) {
+    public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
+        log.info("Start Search");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> boxNumber =
                 IntStream.range(0, 5)
@@ -29,7 +39,7 @@ public class AuctionServiceImpl implements AuctionService {
                         .collect(Collectors.toList());
         int size = boxNumber.size();
 
-        ApiAuctionRes[][] searchList = getSearchList(size, selectOptionReqList, boxNumber, type);
+        ApiAuctionRes[][] searchList = getSearchList(size, selectOptionReqList, boxNumber, type, key);
 
         List<int[]> permList = new ArrayList<>();
 
@@ -60,7 +70,7 @@ public class AuctionServiceImpl implements AuctionService {
         for (int i = 0; i < 5; i++) {
             if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().get(0).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(1).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(2).getOption() == 0)) continue;
 
-            ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)));
+            ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), key);
 
             int duplication = 0;
             if( i == 1 && searchResultRes[2] != null && searchResultRes[2].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
@@ -88,21 +98,29 @@ public class AuctionServiceImpl implements AuctionService {
 
 
 
-    private ApiAuctionRes requestAuction(ApiAuctionReq apiAuctionReq) {
+    private ApiAuctionRes requestAuction(ApiAuctionReq apiAuctionReq, String key) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + key);
+            String baseUrl = "https://developer-lostark.game.onstove.com/auctions/items";
+            HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(apiAuctionReq, headers);
+            return restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class).getBody();
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("accept", "application/json");
-        headers.set("Authorization", "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IktYMk40TkRDSTJ5NTA5NWpjTWk5TllqY2lyZyIsImtpZCI6IktYMk40TkRDSTJ5NTA5NWpjTWk5TllqY2lyZyJ9.eyJpc3MiOiJodHRwczovL2x1ZHkuZ2FtZS5vbnN0b3ZlLmNvbSIsImF1ZCI6Imh0dHBzOi8vbHVkeS5nYW1lLm9uc3RvdmUuY29tL3Jlc291cmNlcyIsImNsaWVudF9pZCI6IjEwMDAwMDAwMDAxNzcyMzYifQ.WuwGUQh2MPRf0I_Z8mX8RGE5a3qhVAgAg8yTDT4URZ2NpTe_23SIlJwQjxidQxEOsJTrZLh7hrSD4ZpE1I-_bt_qC5SqkDvT7nXV13wlp_Jgpm8YgdmfJkZ1vFIIsNISJHrIKUh27i8qg7o_Zayip7kC0vbjaWLGK5gCMLLqfr40toc40zv31aT7irrkwnfL6W8TjtD9zVrJxPOrGGMBNpoeseUKb-ZCGp9-_D7oPwKXuJhs0XDGQji6aJoZFh3Mzo_EuH9EEThgw3lMleT7uPZEvyv-KxM-x2YBBVQ7T26MesZ2P4_OAUkU9h2D3_sj4QkiKdmv1H8zIiYq8B10ZQ");
-        String baseUrl = "https://developer-lostark.game.onstove.com/auctions/items";
-        HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(apiAuctionReq, headers);
-
-        return restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class).getBody();
+        } catch (HttpStatusCodeException exception) {
+            int statusCode = exception.getStatusCode().value();
+            if(statusCode == 429) {
+                throw new CustomException(ErrorCode.TOO_MANY_API_REQUEST);
+            } else {
+                throw new RuntimeException(exception);
+            }
+        }
     }
 
     //검색 정보 획득
-    private ApiAuctionRes[][] getSearchList(int size, List<SelectOptionReq> selectOptionReqList, List<Integer> boxNumber, int type) {
+    private ApiAuctionRes[][] getSearchList(int size, List<SelectOptionReq> selectOptionReqList, List<Integer> boxNumber, int type, String key) {
         // 0 목걸이 ㅣ 1 귀걸이 ㅣ 2 반지
         // 0 미지정 ㅣ 1 하 ㅣ 2 중 ㅣ 3 상
         ApiAuctionRes[][] searchList = new ApiAuctionRes[6][5];
@@ -145,7 +163,7 @@ public class AuctionServiceImpl implements AuctionService {
                         apiAuctionReq.getEtcOptions().getLast().setFirstOption(null);
                     }
 
-                    searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq);
+                    searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq, key);
                 }
             }
         }
