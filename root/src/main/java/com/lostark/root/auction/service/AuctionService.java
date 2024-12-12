@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AuctionService {
 
-    public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type);
+    public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key);
 }

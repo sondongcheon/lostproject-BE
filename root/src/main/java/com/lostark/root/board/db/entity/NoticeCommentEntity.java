@@ -10,23 +10,25 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "board_notice")
+@Entity(name = "comment_notice")
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoticeEntity {
+public class NoticeCommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long noticeId;
+    private long commentNoticeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private UserEntity user;
 
-    private String category;
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "NOTICE_ID")
+    private NoticeEntity notice;
+
     private String content;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
