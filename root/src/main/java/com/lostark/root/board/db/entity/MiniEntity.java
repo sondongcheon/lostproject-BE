@@ -1,7 +1,6 @@
 package com.lostark.root.board.db.entity;
 
-
-import com.lostark.root.user.db.entity.UserEntity;
+import com.lostark.root.board.db.dto.req.MiniWriteReq;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,27 +11,28 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "board_notice")
+@Entity(name = "board_mini")
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoticeEntity {
+public class MiniEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long noticeId;
+    private long miniId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private UserEntity user;
-
-    private String category;
-    private String title;
+    private String unknown;
     private String content;
     @CreationTimestamp
     private LocalDateTime createAt;
     @UpdateTimestamp
     private LocalDateTime updateAt;
 
+    static public MiniEntity fromReq(MiniWriteReq miniWriteReq) {
+        return MiniEntity.builder()
+                .unknown("익명의 유저")
+                .content(miniWriteReq.getContent())
+                .build();
+    }
 }

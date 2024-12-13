@@ -20,6 +20,7 @@ public class NoticeMainRes {
         private long number;
         private String category;
         private String title;
+        private String writer;
         private long commentCount;
         private LocalDateTime createAt;
 
@@ -27,6 +28,7 @@ public class NoticeMainRes {
             return ContentList.builder().number(noticeEntity.getNoticeId())
                     .category(noticeEntity.getCategory())
                     .title(noticeEntity.getTitle())
+                    .writer(noticeEntity.getUser().getNickname())
                     .commentCount(commentCount)
                     .createAt(noticeEntity.getCreateAt())
                     .build();

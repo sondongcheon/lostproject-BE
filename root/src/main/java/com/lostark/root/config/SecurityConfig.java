@@ -67,6 +67,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/board/notice/*", "/board/notice/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/board/notice/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/board/mini/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/board/mini/**").permitAll()
+
                         //auction
                         .requestMatchers(HttpMethod.GET, "/auction/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auction/**").permitAll()

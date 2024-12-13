@@ -47,6 +47,13 @@ public class SearchResultRes {
                     .upgradeLevel(auctionInfo.getUpgradeLevel())
                     .build();
         }
+
+        static public AuctionInfo NoneResult() {
+            return AuctionInfo.builder()
+                    .buyPrice(0)
+                    .endDate(LocalDateTime.now())
+                    .build();
+        }
     }
 
     @Getter
@@ -60,6 +67,10 @@ public class SearchResultRes {
                     .optionName(option.getOptionName())
                     .value(option.getValue())
                     .build();
+        }
+
+        static public Option NoneResult() {
+            return Option.builder().build();
         }
     }
 
@@ -76,5 +87,15 @@ public class SearchResultRes {
                 .gradeQuality(apiAuctionRes.getItems().get(duplication).getGradeQuality())
                 .auctionInfo(AuctionInfo.fromApiResAuctionInfo(apiAuctionRes.getItems().get(duplication).getAuctionInfo()))
                 .options(optionList).build();
+    }
+
+    static public SearchResultRes NoneResult() {
+        return SearchResultRes.builder()
+                .name("검색 결과 없음")
+                .grade("없음")
+                .auctionInfo(AuctionInfo.NoneResult())
+                .options(new ArrayList<>())
+                .build();
+
     }
 }

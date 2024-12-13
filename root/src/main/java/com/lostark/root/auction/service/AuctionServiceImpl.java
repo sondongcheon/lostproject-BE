@@ -8,7 +8,6 @@ import com.lostark.root.auction.db.dto.res.SearchResultRes;
 import com.lostark.root.exception.CustomException;
 import com.lostark.root.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,6 @@ import java.util.stream.IntStream;
 @Service
 @Slf4j
 public class AuctionServiceImpl implements AuctionService {
-
-    @Value("${apikey.my}")
-    private String apikey;
 
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
@@ -54,6 +50,10 @@ public class AuctionServiceImpl implements AuctionService {
         List<SearchResultRes>[] lists = new List[6];
 
         for (int i = 0; i < size; i++) {
+            if (selectNum[0] == 999 && selectNum[1] == 999 ) {
+                searchResultRes[boxNumber.get(i)] = SearchResultRes.NoneResult();
+                continue;
+            }
             if( i > 0 && searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[numOption.get(selectNum[1])[i-1]][permList.get(selectNum[0])[i-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
                 searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1 );
             } else {
@@ -71,6 +71,10 @@ public class AuctionServiceImpl implements AuctionService {
             if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().get(0).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(1).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(2).getOption() == 0)) continue;
 
             ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), key);
+            if (response.getItems() == null) {
+                searchResultRes[i] = SearchResultRes.NoneResult();
+                continue;
+            }
 
             int duplication = 0;
             if( i == 1 && searchResultRes[2] != null && searchResultRes[2].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
@@ -98,6 +102,7 @@ public class AuctionServiceImpl implements AuctionService {
 
 
 
+
     private ApiAuctionRes requestAuction(ApiAuctionReq apiAuctionReq, String key) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -107,16 +112,25 @@ public class AuctionServiceImpl implements AuctionService {
             headers.set("Authorization", "bearer " + key);
             String baseUrl = "https://developer-lostark.game.onstove.com/auctions/items";
             HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(apiAuctionReq, headers);
+            
             return restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class).getBody();
 
         } catch (HttpStatusCodeException exception) {
-            int statusCode = exception.getStatusCode().value();
-            if(statusCode == 429) {
-                throw new CustomException(ErrorCode.TOO_MANY_API_REQUEST);
-            } else {
-                throw new RuntimeException(exception);
-            }
+            throw ApiErrorHandle(exception);
         }
+    }
+
+    private CustomException ApiErrorHandle(HttpStatusCodeException exception) {
+        int statusCode = exception.getStatusCode().value();
+        log.error(exception.getMessage());
+        log.error("statusCode : {}", statusCode);
+        return switch (statusCode) {
+            case 400 -> new CustomException(ErrorCode.NO_PARAMETER);
+            case 401 -> new CustomException(ErrorCode.API_KEY_ERROR);
+            case 429 -> new CustomException(ErrorCode.TOO_MANY_API_REQUEST);
+
+            default -> throw new RuntimeException(exception);
+        };
     }
 
     //검색 정보 획득
@@ -182,7 +196,11 @@ public class AuctionServiceImpl implements AuctionService {
                 int[] tmpOption = numOption.get(j);
                 int tmp = 0;
                 for (int k = 0; k < size; k++) {
-                    if( k > 0 && searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
+                    if(searchList[tmpOption[k]][tmpPerm[k]].getItems() == null) {
+                        tmp = 99999999;
+                        continue;
+                    }
+                    if( k > 0 && searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems() != null && searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
                         tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().get(1).getAuctionInfo().getBuyPrice();
                     } else {
                         tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getBuyPrice();
@@ -195,6 +213,10 @@ public class AuctionServiceImpl implements AuctionService {
                 }
             }
 
+        }
+        if( total > 99999998) {
+            selectNum[0] = 999;
+            selectNum[1] = 999;
         }
         return selectNum;
     }
