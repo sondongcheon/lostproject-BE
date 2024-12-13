@@ -1,7 +1,10 @@
 package com.lostark.root.board.service;
 
+import com.lostark.root.board.db.dto.req.MiniWriteReq;
+import com.lostark.root.board.db.dto.res.MiniMainRes;
 import com.lostark.root.board.db.dto.res.NoticeContentRes;
 import com.lostark.root.board.db.dto.res.NoticeMainRes;
+import com.lostark.root.board.db.entity.MiniEntity;
 import com.lostark.root.board.db.entity.NoticeEntity;
 import com.lostark.root.board.db.repository.NoticeCommentRepository;
 import com.lostark.root.board.db.repository.NoticeRepository;
@@ -9,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -21,6 +26,7 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
     private final NoticeCommentRepository noticeCommentRepository;
 
+
     @Override
     public String test() {
         Optional<NoticeEntity> noticeEntity = noticeRepository.findById((long)1);
@@ -29,7 +35,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public NoticeMainRes getNoticeMain(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC,"createAt"));
 
         Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(pageable);
 
@@ -56,5 +62,6 @@ public class NoticeServiceImpl implements NoticeService {
         }
         return null;
     }
+
 
 }
