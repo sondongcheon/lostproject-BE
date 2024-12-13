@@ -29,7 +29,7 @@ public class SecurityConfig {
 
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "https://lostroot.shop", "http://221.145.113.28/"));
+                        config.setAllowedOrigins(List.of("http://localhost:3000", "https://loaroot.com/"));
                         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                         config.setAllowCredentials(true);
                         config.setAllowedHeaders(List.of("*"));
