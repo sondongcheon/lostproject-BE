@@ -13,12 +13,14 @@ public enum ErrorCode {
 
     //API 요청 에러
     // ErrorCode 429
-    TOO_MANY_API_REQUEST(HttpStatus.TOO_MANY_REQUESTS, "API-001", "API 요청 분당 100회 초과"),
+    TOO_MANY_API_REQUEST(HttpStatus.TOO_MANY_REQUESTS, "API-001", "API 요청 횟수 분당 100회를 초과하였습니다. <br /> 잠시 뒤에 다시 시도해주세요."),
     // ErrorCode 401
-    API_KEY_ERROR(HttpStatus.UNAUTHORIZED, "API-002", "API KEY 가 유효하지 않습니다."),
+    API_KEY_ERROR(HttpStatus.UNAUTHORIZED, "API-002", "API KEY 가 유효하지 않습니다. <br /> 우측 상단 API키를 확인하여 주세요"),
     // ErrorCode 400 org.springframework.web.client.HttpClientErrorException$BadRequest: 400 Check parameter for CategoryCode: [no body]
-    NO_PARAMETER(HttpStatus.BAD_REQUEST, "API-003", "입력되지 않은 값이 있습니다."),
-    NO_CONTENT(HttpStatus.BAD_REQUEST, "API-004", "검색 결과가 없습니다.");
+    NO_PARAMETER(HttpStatus.BAD_REQUEST, "API-003", "입력되지 않은 값이 있습니다. <br /> 입력 값을 다시 한번 확인하여 주세요."),
+    NO_CONTENT(HttpStatus.BAD_REQUEST, "API-004", "입력하신 옵션에 대한 검색 결과가 없습니다. <br /> 실 매물이 없는 경우로 확인됩니다."),
+    // 로아 점검중일때 Runtime 오류 발생 org.springframework.web.client.HttpServerErrorException$ServiceUnavailable: 503 Service Unavailable: [no body]
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "API-005", "현재 게임 서버가 점검중이거나 <br /> 옥션 서비스가 원활하지 않습니다.");
 
     private final HttpStatus httpStatus;	// HttpStatus
     private final String code;				// ACCOUNT-001

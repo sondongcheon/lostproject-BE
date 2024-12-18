@@ -1,12 +1,15 @@
 package com.lostark.root.auction.service;
 
+import com.lostark.root.auction.db.dto.OptionValueEnum;
 import com.lostark.root.auction.db.dto.req.APIreq.ApiAuctionReq;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
 import com.lostark.root.auction.db.dto.res.SearchFinalRes;
 import com.lostark.root.auction.db.dto.res.SearchResultRes;
+import com.lostark.root.common.db.repository.LogCountRepository;
 import com.lostark.root.exception.CustomException;
 import com.lostark.root.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,12 +23,17 @@ import java.util.stream.IntStream;
 
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AuctionServiceImpl implements AuctionService {
+
+    private final LogCountRepository logCountRepository;
 
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         log.info("Start Search");
+        logCountRepository.incrementCountByName("totalSearch");
+        logCountRepository.incrementCountByName("todaySearch");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> boxNumber =
                 IntStream.range(0, 5)
@@ -128,6 +136,7 @@ public class AuctionServiceImpl implements AuctionService {
             case 400 -> new CustomException(ErrorCode.NO_PARAMETER);
             case 401 -> new CustomException(ErrorCode.API_KEY_ERROR);
             case 429 -> new CustomException(ErrorCode.TOO_MANY_API_REQUEST);
+            case 503 -> new CustomException(ErrorCode.SERVICE_UNAVAILABLE);
 
             default -> throw new RuntimeException(exception);
         };
@@ -162,17 +171,19 @@ public class AuctionServiceImpl implements AuctionService {
                 for (int k = 0; k < 2; k++) {
                     // 상상 중중 하하 백트래킹 필요
                     if(rank[i][k%2] != 0) {
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), 4, rank[i][k % 2]).getValue();
                         apiAuctionReq.getEtcOptions().getFirst().setFirstOption(7);
-                        apiAuctionReq.getEtcOptions().getFirst().setMinValue(rank[i][k % 2]);
-                        apiAuctionReq.getEtcOptions().getFirst().setMaxValue(rank[i][k % 2]);
+                        apiAuctionReq.getEtcOptions().getFirst().setMinValue(value);
+                        apiAuctionReq.getEtcOptions().getFirst().setMaxValue(value);
                     } else {
                         apiAuctionReq.getEtcOptions().getFirst().setFirstOption(null);
                     }
 
                     if(rank[i][(k+1)%2] != 0) {
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
                         apiAuctionReq.getEtcOptions().getLast().setFirstOption(7);
-                        apiAuctionReq.getEtcOptions().getLast().setMinValue(rank[i][(k+1)%2]);
-                        apiAuctionReq.getEtcOptions().getLast().setMaxValue(rank[i][(k+1)%2]);
+                        apiAuctionReq.getEtcOptions().getLast().setMinValue(value);
+                        apiAuctionReq.getEtcOptions().getLast().setMaxValue(value);
                     } else {
                         apiAuctionReq.getEtcOptions().getLast().setFirstOption(null);
                     }
