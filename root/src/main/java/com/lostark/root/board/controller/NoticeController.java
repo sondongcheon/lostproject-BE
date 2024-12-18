@@ -1,5 +1,6 @@
 package com.lostark.root.board.controller;
 
+import com.lostark.root.board.db.dto.req.NoticeWriteReq;
 import com.lostark.root.board.db.dto.res.NoticeContentRes;
 import com.lostark.root.board.db.dto.res.NoticeMainRes;
 import com.lostark.root.board.service.NoticeService;
@@ -7,10 +8,7 @@ import com.lostark.root.common.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/board/notice")
@@ -33,6 +31,11 @@ public class NoticeController {
     @GetMapping("/content")
     public Response<NoticeContentRes> getNoticeContent(@RequestParam ("id") long id) {
         return Response.of(HttpStatus.OK, "Notice Content 조회 완료", noticeService.getNoticeContent(id));
+    }
+
+    @PostMapping
+    public Response<Long> setNotice(@RequestBody NoticeWriteReq noticeWriteReq) {
+        return Response.of(HttpStatus.OK, "Notice Content 저장 완료", noticeService.setNoticeContent(noticeWriteReq));
     }
 
 }

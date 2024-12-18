@@ -1,6 +1,7 @@
 package com.lostark.root.board.service;
 
 import com.lostark.root.board.db.dto.req.MiniWriteReq;
+import com.lostark.root.board.db.dto.req.NoticeWriteReq;
 import com.lostark.root.board.db.dto.res.MiniMainRes;
 import com.lostark.root.board.db.dto.res.NoticeContentRes;
 import com.lostark.root.board.db.dto.res.NoticeMainRes;
@@ -61,6 +62,15 @@ public class NoticeServiceImpl implements NoticeService {
             return NoticeContentRes.fromEntity(noticeEntity);
         }
         return null;
+    }
+
+    @Override
+    public long setNoticeContent(NoticeWriteReq noticeWriteReq) {
+        if(noticeWriteReq.getPassword() == 1136) {
+            return noticeRepository.save(NoticeEntity.fromReq(noticeWriteReq)).getNoticeId();
+        } else {
+            return 0L;
+        }
     }
 
 

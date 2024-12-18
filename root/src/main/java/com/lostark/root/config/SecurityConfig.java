@@ -61,11 +61,13 @@ public class SecurityConfig {
                         .permitAll()
 
                         //test
-                        .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
+                        //log
+                        .requestMatchers(HttpMethod.GET, "/log/**").permitAll()
 
                         //board
                         .requestMatchers(HttpMethod.GET, "/board/notice/*", "/board/notice/**").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/board/notice/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/board/notice/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/board/mini/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/board/mini/**").permitAll()

@@ -1,5 +1,6 @@
 package com.lostark.root.auction.db.dto.req.APIreq;
 
+import com.lostark.root.auction.db.dto.OptionValueEnum;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import lombok.*;
 
@@ -38,11 +39,12 @@ public class ApiAuctionReq {
         private Integer maxValue;
 
         static public EtcOption fromSelectEtcOption(SelectOptionReq.EtcOption etcOption) {
+            OptionValueEnum option = OptionValueEnum.getByOptionTierValueLevel(etcOption.getOption(), 4, etcOption.getValue());
             return EtcOption.builder()
                     .firstOption(7)
                     .secondOption(etcOption.getOption() == 0 ? null : etcOption.getOption())
-                    .minValue(etcOption.getValue())
-                    .maxValue(etcOption.getValue()).build();
+                    .minValue(option.getValue())
+                    .maxValue(option.getValue()).build();
         }
     }
 
