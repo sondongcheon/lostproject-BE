@@ -180,15 +180,22 @@ public class AuctionServiceImpl implements AuctionService {
                     }
 
                     if(rank[i][(k+1)%2] != 0) {
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getLast().getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
                         apiAuctionReq.getEtcOptions().getLast().setFirstOption(7);
                         apiAuctionReq.getEtcOptions().getLast().setMinValue(value);
                         apiAuctionReq.getEtcOptions().getLast().setMaxValue(value);
                     } else {
                         apiAuctionReq.getEtcOptions().getLast().setFirstOption(null);
                     }
+                    System.out.println("apiAuctionReq = " + apiAuctionReq.toString());
+                    System.out.println("apiAuctionReq2 = " + apiAuctionReq.getEtcOptions().getFirst().toString());
 
                     searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq, key);
+                    if(searchList[j*2 + k][boxNumber.get(i)].getItems() == null ) {
+                        System.out.println("null");
+                    } else {
+                        System.out.println("size = " + searchList[j * 2 + k][boxNumber.get(i)].getItems().size());
+                    }
                 }
             }
         }
