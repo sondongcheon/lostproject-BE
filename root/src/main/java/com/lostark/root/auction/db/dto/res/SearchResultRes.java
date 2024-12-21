@@ -75,6 +75,7 @@ public class SearchResultRes {
     }
 
     static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes, int duplication) {
+        if(apiAuctionRes.getItems().size() <= duplication) return NoneResult();
         List<Option> optionList = new ArrayList<>();
         for (int i = 0; i < apiAuctionRes.getItems().get(duplication).getOptions().size(); i++) {
             optionList.add(Option.fromApiResOption(apiAuctionRes.getItems().get(duplication).getOptions().get(i)));

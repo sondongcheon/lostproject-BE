@@ -165,8 +165,7 @@ public class AuctionServiceImpl implements AuctionService {
                  */
                 apiAuctionReq.setCategoryCode(200010 + (j * 10));
                 apiAuctionReq.getEtcOptions().getFirst().setSecondOption(41 + type + (j * 4));
-                apiAuctionReq.getEtcOptions().getLast().setSecondOption(42 + type + (j * 4));
-
+                apiAuctionReq.getEtcOptions().get(1).setSecondOption(42 + type + (j * 4));
 
                 for (int k = 0; k < 2; k++) {
                     // 상상 중중 하하 백트래킹 필요
@@ -180,22 +179,16 @@ public class AuctionServiceImpl implements AuctionService {
                     }
 
                     if(rank[i][(k+1)%2] != 0) {
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getLast().getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
-                        apiAuctionReq.getEtcOptions().getLast().setFirstOption(7);
-                        apiAuctionReq.getEtcOptions().getLast().setMinValue(value);
-                        apiAuctionReq.getEtcOptions().getLast().setMaxValue(value);
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().get(1).getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
+                        apiAuctionReq.getEtcOptions().get(1).setFirstOption(7);
+                        apiAuctionReq.getEtcOptions().get(1).setMinValue(value);
+                        apiAuctionReq.getEtcOptions().get(1).setMaxValue(value);
                     } else {
-                        apiAuctionReq.getEtcOptions().getLast().setFirstOption(null);
+                        apiAuctionReq.getEtcOptions().get(1).setFirstOption(null);
                     }
-                    System.out.println("apiAuctionReq = " + apiAuctionReq.toString());
-                    System.out.println("apiAuctionReq2 = " + apiAuctionReq.getEtcOptions().getFirst().toString());
 
                     searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq, key);
-                    if(searchList[j*2 + k][boxNumber.get(i)].getItems() == null ) {
-                        System.out.println("null");
-                    } else {
-                        System.out.println("size = " + searchList[j * 2 + k][boxNumber.get(i)].getItems().size());
-                    }
+
                 }
             }
         }
@@ -219,7 +212,7 @@ public class AuctionServiceImpl implements AuctionService {
                         continue;
                     }
                     if( k > 0 && searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems() != null && searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
-                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().get(1).getAuctionInfo().getBuyPrice();
+                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().size() < 2 ? 99999999 : searchList[tmpOption[k]][tmpPerm[k]].getItems().get(1).getAuctionInfo().getBuyPrice();
                     } else {
                         tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getBuyPrice();
                     }

@@ -6,6 +6,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Getter
+@ToString
 public class SelectOptionReq {
 
     private int quality;
