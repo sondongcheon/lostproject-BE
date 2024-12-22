@@ -210,7 +210,7 @@ public class AuctionServiceImpl implements AuctionService {
                 int tmp = 0;
                 for (int k = 0; k < size; k++) {
                     if(searchList[tmpOption[k]][tmpPerm[k]].getItems() == null) {
-                        System.out.println("aa");
+
                         tmp = 99999999;
                         continue;
                     }
@@ -231,7 +231,6 @@ public class AuctionServiceImpl implements AuctionService {
         if( total > 99999998) {
             selectNum[0] = 999;
             selectNum[1] = 999;
-            System.out.println("here?");
         }
         return selectNum;
     }
