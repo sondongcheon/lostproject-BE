@@ -32,8 +32,8 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         log.info("Start Search");
-//        logCountRepository.incrementCountByName("totalSearch");
-//        logCountRepository.incrementCountByName("todaySearch");
+        logCountRepository.incrementCountByName("totalSearch");
+        logCountRepository.incrementCountByName("todaySearch");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> boxNumber =
                 IntStream.range(0, 5)
