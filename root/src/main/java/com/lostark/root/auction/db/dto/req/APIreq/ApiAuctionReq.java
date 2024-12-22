@@ -38,8 +38,8 @@ public class ApiAuctionReq {
         private Integer minValue;
         private Integer maxValue;
 
-        static public EtcOption fromSelectEtcOption(SelectOptionReq.EtcOption etcOption) {
-            OptionValueEnum option = OptionValueEnum.getByOptionTierValueLevel(etcOption.getOption(), 4, etcOption.getValue());
+        static public EtcOption fromSelectEtcOption(SelectOptionReq.EtcOption etcOption, int tier) {
+            OptionValueEnum option = OptionValueEnum.getByOptionTierValueLevel(etcOption.getOption(), tier, etcOption.getValue());
             return EtcOption.builder()
                     .firstOption(7)
                     .secondOption(etcOption.getOption() == 0 ? null : etcOption.getOption())
@@ -51,7 +51,7 @@ public class ApiAuctionReq {
     static public ApiAuctionReq fromSelectOption(SelectOptionReq selectOptionReq) {
         List<EtcOption> etcOptionList = new ArrayList<>();
         for (int i = 0; i < selectOptionReq.getEtcOptionList().size(); i++) {
-            etcOptionList.add(ApiAuctionReq.EtcOption.fromSelectEtcOption(selectOptionReq.getEtcOptionList().get(i)));
+            etcOptionList.add(ApiAuctionReq.EtcOption.fromSelectEtcOption(selectOptionReq.getEtcOptionList().get(i), SelectOptionReq.filterTier(selectOptionReq.getTier(), selectOptionReq.getItemGrade())));
         }
 //        if(selectOptionReq.getEtcOptionList().size() == 1) etcOptionList.add(new EtcOption());
         return ApiAuctionReq.builder()
@@ -61,7 +61,7 @@ public class ApiAuctionReq {
                 .etcOptions(etcOptionList)
                 .sort("BUY_PRICE")
                 .categoryCode(selectOptionReq.getCategoryCode())
-                .itemTier(4)
+                .itemTier(selectOptionReq.getTier())
                 .itemGrade(selectOptionReq.getItemGrade())
                 .pageNo(0)
                 .sortCondition("ASC").build();
