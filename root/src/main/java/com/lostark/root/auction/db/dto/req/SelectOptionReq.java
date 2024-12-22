@@ -1,14 +1,15 @@
 package com.lostark.root.auction.db.dto.req;
 
 import lombok.Getter;
-import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Getter
-@ToString
+@Slf4j
 public class SelectOptionReq {
 
+    private int tier;
     private int quality;
     private Integer upgradeLevel;
     private Integer tradeAllowCount;
@@ -17,10 +18,29 @@ public class SelectOptionReq {
     private List<EtcOption> etcOptionList;
 
     @Getter
-    @ToString
     public static class EtcOption {
         private int option;
         private int value;
+    }
+
+    static public int filterTier(int tier, String itemGrade) {
+        if(tier == 4) {
+            return 4;
+        } else { // tier == 3
+            switch (itemGrade) {
+                case "전설" -> {
+                    return 1;
+                }
+                case "유물" -> {
+                    return 2;
+                }
+                case "고대" -> {
+                    return 3;
+                }
+            }
+        }
+        log.error("tier, itemGrade Error tier : {}, itemGrade : {}", tier, itemGrade);
+        return 0;   //Error
     }
 
 }

@@ -32,8 +32,8 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         log.info("Start Search");
-        logCountRepository.incrementCountByName("totalSearch");
-        logCountRepository.incrementCountByName("todaySearch");
+//        logCountRepository.incrementCountByName("totalSearch");
+//        logCountRepository.incrementCountByName("todaySearch");
         boolean[] isExampleBool = new boolean[5];
         List<Integer> boxNumber =
                 IntStream.range(0, 5)
@@ -63,14 +63,14 @@ public class AuctionServiceImpl implements AuctionService {
                 continue;
             }
             if( i > 0 && searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[numOption.get(selectNum[1])[i-1]][permList.get(selectNum[0])[i-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
-                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1 );
+                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1, type );
             } else {
-                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 0);
+                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 0, type);
             }
 
             List<SearchResultRes> searchResultResList = new ArrayList<>();
             for (int j = 0; j < searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().size(); j++) {
-                searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], j) );
+                searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], j, type) );
             }
             lists[boxNumber.get(i)] = searchResultResList;
         }
@@ -94,11 +94,11 @@ public class AuctionServiceImpl implements AuctionService {
             } else if (i == 4 && searchResultRes[3] != null && searchResultRes[3].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
                 duplication = 1;
             }
-            searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication);
+            searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication, type);
 
             List<SearchResultRes> searchResultResList = new ArrayList<>();
             for (int j = 0; j < response.getItems().size(); j++) {
-                searchResultResList.add( SearchResultRes.fromApiRes( Objects.requireNonNull(response), j) );
+                searchResultResList.add( SearchResultRes.fromApiRes( Objects.requireNonNull(response), j, type) );
             }
             lists[i] = searchResultResList;
 
@@ -170,7 +170,7 @@ public class AuctionServiceImpl implements AuctionService {
                 for (int k = 0; k < 2; k++) {
                     // 상상 중중 하하 백트래킹 필요
                     if(rank[i][k%2] != 0) {
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), 4, rank[i][k % 2]).getValue();
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][k % 2]).getValue();
                         apiAuctionReq.getEtcOptions().getFirst().setFirstOption(7);
                         apiAuctionReq.getEtcOptions().getFirst().setMinValue(value);
                         apiAuctionReq.getEtcOptions().getFirst().setMaxValue(value);
@@ -179,12 +179,14 @@ public class AuctionServiceImpl implements AuctionService {
                     }
 
                     if(rank[i][(k+1)%2] != 0) {
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().get(1).getSecondOption(), 4, rank[i][(k+1)%2]).getValue();
+
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().get(1).getSecondOption(), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][(k+1)%2]).getValue();
                         apiAuctionReq.getEtcOptions().get(1).setFirstOption(7);
                         apiAuctionReq.getEtcOptions().get(1).setMinValue(value);
                         apiAuctionReq.getEtcOptions().get(1).setMaxValue(value);
                     } else {
                         apiAuctionReq.getEtcOptions().get(1).setFirstOption(null);
+
                     }
 
                     searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq, key);
@@ -208,6 +210,7 @@ public class AuctionServiceImpl implements AuctionService {
                 int tmp = 0;
                 for (int k = 0; k < size; k++) {
                     if(searchList[tmpOption[k]][tmpPerm[k]].getItems() == null) {
+                        System.out.println("aa");
                         tmp = 99999999;
                         continue;
                     }
@@ -228,6 +231,7 @@ public class AuctionServiceImpl implements AuctionService {
         if( total > 99999998) {
             selectNum[0] = 999;
             selectNum[1] = 999;
+            System.out.println("here?");
         }
         return selectNum;
     }

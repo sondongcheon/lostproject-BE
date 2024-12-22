@@ -1,5 +1,9 @@
 package com.lostark.root.auction.db.dto.res;
 
+import com.lostark.root.auction.db.dto.OptionDisplayDel;
+import com.lostark.root.auction.db.dto.OptionDisplaySup;
+import com.lostark.root.auction.db.dto.OptionValueEnum;
+import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
 import lombok.*;
 
@@ -60,25 +64,34 @@ public class SearchResultRes {
     @Builder
     public static class Option {
         public String optionName;
-        public double value;
+        public String value;
+        public String valueGrade;
 
-        static public Option fromApiResOption(ApiAuctionRes.Item.Option option) {
+        static public Option fromApiResOption(ApiAuctionRes.Item.Option option, int type, int tier, String itemGrade) {
+
+            int val = type == 0 ? OptionDisplayDel.getByName(option.getOptionName()).getOption() : OptionDisplaySup.getByName(option.getOptionName()).getOption();
+            OptionValueEnum optionValueEnum = OptionValueEnum.getByDisplayValue(val, option.getValue() + (option.IsValuePercentage ? "%" : null), SelectOptionReq.filterTier(tier, itemGrade));
+            String grade = null;
+            switch (optionValueEnum.getValueLevel()) {
+                case 3 -> grade = "상";
+                case 2 -> grade = "중";
+                case 1 -> grade = "하";
+            }
             return Option.builder()
                     .optionName(option.getOptionName())
-                    .value(option.getValue())
+                    .value(option.IsValuePercentage ? option.getValue() + "%" : option.getValue() + "")
+                    .valueGrade(grade == null ? "" : grade + " -" + tier + "T" + itemGrade)
                     .build();
         }
 
-        static public Option NoneResult() {
-            return Option.builder().build();
-        }
     }
 
-    static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes, int duplication) {
+    static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes, int duplication, int type) {
         if(apiAuctionRes.getItems().size() <= duplication) return NoneResult();
         List<Option> optionList = new ArrayList<>();
         for (int i = 0; i < apiAuctionRes.getItems().get(duplication).getOptions().size(); i++) {
-            optionList.add(Option.fromApiResOption(apiAuctionRes.getItems().get(duplication).getOptions().get(i)));
+            ApiAuctionRes.Item target = apiAuctionRes.getItems().get(duplication);
+            optionList.add(Option.fromApiResOption(target.getOptions().get(i), type, target.getTier() , target.getGrade()));
         }
 
         return SearchResultRes.builder()
