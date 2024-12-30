@@ -66,4 +66,22 @@ public class ApiAuctionReq {
                 .pageNo(0)
                 .sortCondition("ASC").build();
     }
+
+    static public ApiAuctionReq toChart() {
+        List<EtcOption> etcOptionList = new ArrayList<>();
+        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(41).minValue(11).maxValue(11).build());
+        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(42).minValue(12).maxValue(12).build());
+
+        return ApiAuctionReq.builder()
+                .itemGradeQuality(80)
+                .itemUpgradeLevel(null)
+                .itemTradeAllowCount(null)
+                .etcOptions(etcOptionList)
+                .sort("BUY_PRICE")
+                .categoryCode(200010)
+                .itemTier(4)
+                .itemGrade("고대")
+                .pageNo(0)
+                .sortCondition("ASC").build();
+    }
 }
