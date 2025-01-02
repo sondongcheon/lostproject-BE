@@ -1,5 +1,6 @@
 package com.lostark.root.auction.db.dto.req.APIreq;
 
+import com.lostark.root.auction.db.dto.ChartSelectTypeDto;
 import com.lostark.root.auction.db.dto.OptionValueEnum;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import lombok.*;
@@ -67,18 +68,18 @@ public class ApiAuctionReq {
                 .sortCondition("ASC").build();
     }
 
-    static public ApiAuctionReq toChart() {
+    static public ApiAuctionReq toChart(ChartSelectTypeDto dto) {
         List<EtcOption> etcOptionList = new ArrayList<>();
-        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(41).minValue(11).maxValue(11).build());
-        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(42).minValue(12).maxValue(12).build());
+        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(dto.getEtcOption().getOption() == 0 ? null : dto.getEtcOption().getOption()).minValue(dto.getEtcOption().getValue()).maxValue(dto.getEtcOption().getValue()).build());
+        etcOptionList.add(EtcOption.builder().firstOption(7).secondOption(dto.getEtcOption2().getOption() == 0 ? null : dto.getEtcOption2().getOption()).minValue(dto.getEtcOption2().getValue()).maxValue(dto.getEtcOption2().getValue()).build());
 
         return ApiAuctionReq.builder()
-                .itemGradeQuality(80)
+                .itemGradeQuality(dto.getQuality())
                 .itemUpgradeLevel(null)
                 .itemTradeAllowCount(null)
                 .etcOptions(etcOptionList)
                 .sort("BUY_PRICE")
-                .categoryCode(200010)
+                .categoryCode(dto.getCategoryCode())
                 .itemTier(4)
                 .itemGrade("고대")
                 .pageNo(0)
