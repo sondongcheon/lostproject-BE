@@ -76,6 +76,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auction/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auction/**").permitAll()
 
+                        //chart
+                        .requestMatchers(HttpMethod.GET, "/chart/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/chart/**").permitAll()
+
+
                         .requestMatchers("/*", "/**").denyAll()
                         .anyRequest().authenticated());
 //                .exceptionHandling((exceptionConfig) ->
