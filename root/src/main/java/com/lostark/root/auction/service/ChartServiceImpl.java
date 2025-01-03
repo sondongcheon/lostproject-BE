@@ -19,14 +19,14 @@ public class ChartServiceImpl implements ChartService {
     @Override
     public List<ChartInfoRes> getChartInfo(int tier, String category, String grade, String value, String value2) {
 
-        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % 2 = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 10 ) AS subquery ORDER BY create_at ASC";
+        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % 1 = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 20 ) AS subquery ORDER BY create_at ASC";
 
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql, ChartGenericEntity.class).getResultList();
         return result.stream()
                 .map(entity -> {
                     LocalDateTime tmp = entity.getCreateAt();
                     return new ChartInfoRes(
-                        tmp.getMonthValue() + "월 " + tmp.getDayOfMonth() +"일 " + tmp.getHour() + "시 " + tmp.getMinute() + "분",
+                        tmp.getMonthValue() + "월 " + tmp.getDayOfMonth() +"일 " + tmp.getHour() + "시",
                         entity.getPrice()
                 );})
                 .toList();
