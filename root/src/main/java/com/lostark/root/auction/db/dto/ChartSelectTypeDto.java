@@ -11,8 +11,9 @@ public class ChartSelectTypeDto {
     private OptionValueEnum etcOption2;
     private int quality;
     private int categoryCode;
+    private String grade;
 
-    public static ChartSelectTypeDto ofOption(int categoryCode, int tier, int valueLevel, int valueLevel2, int quality) {
+    public static ChartSelectTypeDto ofOption(int categoryCode, int tier, int valueLevel, int valueLevel2, int quality, String grade) {
 
         int option =
         switch (categoryCode) {
@@ -26,7 +27,9 @@ public class ChartSelectTypeDto {
                 .etcOption(OptionValueEnum.getByOptionTierValueLevel(option, tier, valueLevel))
                 .etcOption2(OptionValueEnum.getByOptionTierValueLevel(option+1, tier, valueLevel2))
                 .quality(quality)
-                .categoryCode(categoryCode).build();
+                .categoryCode(categoryCode)
+                .grade(grade)
+                .build();
     }
 
 

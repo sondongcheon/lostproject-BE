@@ -81,7 +81,7 @@ public class ApiAuctionReq {
                 .sort("BUY_PRICE")
                 .categoryCode(dto.getCategoryCode())
                 .itemTier(4)
-                .itemGrade("고대")
+                .itemGrade(dto.getGrade())
                 .pageNo(0)
                 .sortCondition("ASC").build();
     }
