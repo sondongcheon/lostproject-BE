@@ -1,17 +1,18 @@
 package com.lostark.root.auction.service;
 
+import com.lostark.root.auction.db.dto.CustomChartEnum;
+import com.lostark.root.auction.db.dto.req.CustomChartReq;
 import com.lostark.root.auction.db.dto.res.ChartInfoRes;
 import com.lostark.root.auction.db.entity.ChartGenericEntity;
 import com.lostark.root.common.db.repository.LogCountRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +28,7 @@ public class ChartServiceImpl implements ChartService {
         String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % 1 = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 20 ) AS subquery ORDER BY create_at ASC";
 
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql, ChartGenericEntity.class).getResultList();
+        entityManager.clear();
         return result.stream()
                 .map(entity -> {
                     LocalDateTime tmp = entity.getCreateAt();
@@ -37,21 +39,56 @@ public class ChartServiceImpl implements ChartService {
                 .toList();
     }
 
+    @Override
+    public List<ChartInfoRes> getCustomChartInfo(CustomChartReq req) {
+        List<List<ChartInfoRes>> getInfo = new ArrayList<>();
+
+        List<CustomChartEnum> chartEnums = new ArrayList<>();
+        chartEnums.add(CustomChartEnum.getByNumber(req.getBox1()));
+        chartEnums.add(CustomChartEnum.getByNumber(req.getBox2()));
+        chartEnums.add(CustomChartEnum.getByNumber(req.getBox3()));
+        chartEnums.add(CustomChartEnum.getByNumber(req.getBox4()));
+        chartEnums.add(CustomChartEnum.getByNumber(req.getBox5()));
+
+        for (CustomChartEnum customInfo : chartEnums) {
+            if(customInfo.getNumber() == 0) continue;
+
+            getInfo.add(getChartInfo(customInfo.getTier(), customInfo.getCategory(), customInfo.getGrade(), customInfo.getValue(), customInfo.getValue2()));
+        }
+
+        List<ChartInfoRes> result = new ArrayList<>();
+
+        for (int i = 0; i < 20; i++) {
+            ChartInfoRes newInfo = new ChartInfoRes();
+            for (List<ChartInfoRes> info : getInfo) {
+                if(info.size() <= i) continue;
+                newInfo.setBuyPrice(newInfo.getBuyPrice() + info.get(i).getBuyPrice());
+                newInfo.setTime(info.get(i).getTime());
+            }
+
+            result.add(newInfo);
+        }
+
+        return result;
+    }
+
     public void loadChartPage(Cookie[] cookies, HttpServletResponse response) {
-        for (Cookie value : cookies) {
-            if(value.getName().equals("CCP")) return;
+        if(cookies != null ) {
+            for (Cookie value : cookies) {
+                if (value.getName().equals("CCP")) return;
+            }
         }
 
         Cookie cookie = new Cookie("CCP", null);
         cookie.setMaxAge(24*60*60);
         cookie.setSecure(true);
-        cookie.setPath("/chart");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         response.addCookie(cookie);
 
-        logCountRepository.incrementCountByName("totalSearch");
-        logCountRepository.incrementCountByName("todaySearch");
+        logCountRepository.incrementCountByName("totalLoadChart");
+        logCountRepository.incrementCountByName("todayLoadChart");
 
     }
 }
