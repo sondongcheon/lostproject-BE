@@ -2,5 +2,5 @@ package com.lostark.root.common.service;
 
 public interface LogService {
 
-    public long[] getSearchLog();
+    public long[] getLog(long id);
 }

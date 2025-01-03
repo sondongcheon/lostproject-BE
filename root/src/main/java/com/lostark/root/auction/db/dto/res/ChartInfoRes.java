@@ -1,14 +1,15 @@
 package com.lostark.root.auction.db.dto.res;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ChartInfoRes {
 
     private String time;

@@ -1,15 +1,16 @@
 package com.lostark.root.auction.controller;
 
+import com.lostark.root.auction.db.dto.req.CustomChartReq;
 import com.lostark.root.auction.db.dto.res.ChartInfoRes;
 import com.lostark.root.auction.service.ChartService;
 import com.lostark.root.common.Response;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +29,16 @@ public class ChartController {
                                                 @RequestParam ("value") String value,
                                                 @RequestParam ("value2") String value2) {
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getChartInfo(tier, category, grade, value, value2));
+    }
+
+    @PostMapping("/custom")
+    public Response<List<ChartInfoRes>> getCustomInfo(@RequestBody CustomChartReq customChartReq) {
+        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getCustomChartInfo(customChartReq));
+    }
+
+    @GetMapping("/uplog")
+    public Response<?> upLog(HttpServletRequest request, HttpServletResponse response) {
+        chartService.loadChartPage(request.getCookies(), response);
+        return Response.of(HttpStatus.OK, "차트 조회수 갱신", null);
     }
 }

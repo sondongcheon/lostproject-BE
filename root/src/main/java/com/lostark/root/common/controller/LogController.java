@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,8 +18,8 @@ public class LogController {
 
     private final LogService logService;
 
-    @GetMapping("/search")
-    public Response<long[]> getSearchLog() {
-        return Response.of(HttpStatus.OK, "Search 횟수 조회", logService.getSearchLog());
+    @GetMapping("/{id}")
+    public Response<long[]> getLog(@PathVariable ("id") long id) {
+        return Response.of(HttpStatus.OK, "Search 횟수 조회", logService.getLog(id));
     }
 }

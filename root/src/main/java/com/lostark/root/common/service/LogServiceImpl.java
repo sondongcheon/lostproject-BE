@@ -16,11 +16,10 @@ public class LogServiceImpl implements LogService {
 
     private final LogCountRepository logCountRepository;
 
-
     @Override
-    public long[] getSearchLog() {
+    public long[] getLog(long id) {
         //id 고정
-        List<LogCountEntity> log = logCountRepository.findAllById(Arrays.asList(1L, 2L));
+        List<LogCountEntity> log = logCountRepository.findAllById(Arrays.asList(id, id+1));
         return new long[] {log.get(0).getCount(), log.get(1).getCount()};
     }
 }
