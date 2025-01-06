@@ -32,43 +32,59 @@ public class ChartServiceScheduled {
     protected void run() {
 
         log.info("start Chart Info");
-        runDetail("고대");
-        runDetail("유물");
+        runGrade("고대");
+        runGrade("유물");
 
         log.info("end Chart Info");
     }
 
-    private void runDetail(String grade) {
-        //4T 고대 목걸이
-        get4TNeckHH(grade);
-        get4TNeckMM(grade);
-        get4TNeckLL(grade);
-        get4TNeckHX(grade);
-        get4TNeckMX(grade);
-        get4TNeckXH(grade);
-        get4TNeckXM(grade);
-        //4T 고대 귀걸이
-        get4TEaringHH(grade);
-        get4TEaringMM(grade);
-        get4TEaringLL(grade);
-        get4TEaringHX(grade);
-        get4TEaringMX(grade);
-        get4TEaringXH(grade);
-        get4TEaringXM(grade);
-        //4T 고대 반지
-        get4TRingHH(grade);
-        get4TRingMM(grade);
-        get4TRingLL(grade);
-        get4TRingHX(grade);
-        get4TRingMX(grade);
-        get4TRingXH(grade);
-        get4TRingXM(grade);
+    private void runGrade(String grade) {
+
+        runCategory(grade, 200010);
+        runCategory(grade, 200020);
+        runCategory(grade, 200030);
+    }
+
+    private void runCategory(String grade, int category) {
+
+        get4T(grade, category, 3, 3);
+        get4T(grade, category, 2, 2);
+        get4T(grade, category, 1, 1);
+        get4T(grade, category, 3 ,2);
+        get4T(grade, category, 2, 3);
+        get4T(grade, category, 3 ,1);
+        get4T(grade, category, 1, 3);
+        get4T(grade, category, 2, 1);
+        get4T(grade, category, 1, 2);
+        get4T(grade, category, 3 ,0);
+        get4T(grade, category, 2, 0);
+        get4T(grade, category, 0, 3);
+        get4T(grade, category, 0, 2);
     }
 
     private String toGradeTableName(String grade) {
         return switch (grade) {
             case "고대" -> "godae";
             case "유물" -> "umuoel";
+            default -> null;
+        };
+    }
+
+    private String toCategoryTableName(int category) {
+        return switch (category) {
+            case 200010 -> "neck";
+            case 200020 -> "earing";
+            case 200030 -> "ring";
+            default -> null;
+        };
+    }
+
+    private String toValue(int value) {
+        return switch (value) {
+            case 3 -> "h";
+            case 2 -> "m";
+            case 1 -> "l";
+            case 0 -> "x";
             default -> null;
         };
     }
@@ -104,133 +120,10 @@ public class ChartServiceScheduled {
         };
     }
 
-
-    //4T고대 목걸이 상상
-    private void get4TNeckHH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 3, 3, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_hh");
+    private void get4T (String grade, int category, int value, int value2) {
+        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(category, 4, value, value2, 80, grade)));
+        saveResult(response, "chart_4t_" + toCategoryTableName(category) + "_" + toGradeTableName(grade) + "_" + toValue(value) + toValue(value2));
     }
-
-    //4T고대 목걸이 중중
-    private void get4TNeckMM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 2, 2, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_mm");
-    }
-
-    //4T고대 목걸이 하하
-    private void get4TNeckLL (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 1, 1, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_ll");
-    }
-
-    //4T고대 목걸이 상X
-    private void get4TNeckHX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 3, 0, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_hx");
-    }
-
-    //4T고대 목걸이 중X
-    private void get4TNeckMX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 2, 0, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_mx");
-    }
-
-    //4T고대 목걸이 X상
-    private void get4TNeckXH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 0, 3, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_xh");
-    }
-
-    //4T고대 목걸이 X중
-    private void get4TNeckXM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200010, 4, 0, 2, 80, grade)));
-        saveResult(response, "chart_4t_neck_" + toGradeTableName(grade) + "_xm");
-    }
-
-    //4T고대 귀걸이 상상
-    private void get4TEaringHH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 3, 3, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_hh");
-    }
-
-    //4T고대 귀걸이 중중
-    private void get4TEaringMM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 2, 2, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_mm");
-    }
-
-    //4T고대 귀걸이 하하
-    private void get4TEaringLL (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 1, 1, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_ll");
-    }
-
-    //4T고대 귀걸이 상X
-    private void get4TEaringHX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 3, 0, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_hx");
-    }
-
-    //4T고대 귀걸이 중X
-    private void get4TEaringMX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 2, 0, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_mx");
-    }
-
-    //4T고대 귀걸이 X상
-    private void get4TEaringXH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 0, 3, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_xh");
-    }
-
-    //4T고대 귀걸이 X중
-    private void get4TEaringXM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200020, 4, 0, 2, 80, grade)));
-        saveResult(response, "chart_4t_earing_" + toGradeTableName(grade) + "_xm");
-    }
-
-    //4T고대 반지 상상
-    private void get4TRingHH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 3, 3, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_hh");
-    }
-
-    //4T고대 반지 중중
-    private void get4TRingMM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 2, 2, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_mm");
-    }
-
-    //4T고대 반지 하하
-    private void get4TRingLL (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 1, 1, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_ll");
-    }
-
-    //4T고대 반지 상X
-    private void get4TRingHX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 3, 0, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_hx");
-    }
-
-    //4T고대 반지 중X
-    private void get4TRingMX (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 2, 0, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_mx");
-    }
-
-    //4T고대 반지 X상
-    private void get4TRingXH (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 0, 3, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_xh");
-    }
-
-    //4T고대 반지 X중
-    private void get4TRingXM (String grade) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(200030, 4, 0, 2, 80, grade)));
-        saveResult(response, "chart_4t_ring_" + toGradeTableName(grade) + "_xm");
-    }
-
 
     private void saveResult (ApiAuctionRes response, String tableName) {
         ApiAuctionRes.Item item = response.getItems().getFirst();
