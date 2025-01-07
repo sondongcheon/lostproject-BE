@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ChartService {
 
-    public List<ChartInfoRes> getChartInfo(int tier, String category, String grade, String value, String value2);
+    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2);
 
-    public List<ChartInfoRes> getCustomChartInfo(CustomChartReq req);
+    public ChartInfoRes getCustomChartInfo(CustomChartReq req);
 
     public void loadChartPage(Cookie[] cookies, HttpServletResponse response);
 }

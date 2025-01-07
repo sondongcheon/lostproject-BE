@@ -3,15 +3,32 @@ package com.lostark.root.auction.db.dto.res;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class ChartInfoRes {
 
-    private String time;
-    private int buyPrice;
+    private List<ChartInfo> chartInfoList;
+
+    private int monthMin;
+    private int monthMinP;
+    private int monthAvg;
+    private int monthAvgP;
+
+    private int weeklyMin;
+    private int weeklyMinP;
+    private int weeklyAvg;
+    private int weeklyAvgP;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChartInfo {
+        private String time;
+        private int buyPrice;
+    }
 }
