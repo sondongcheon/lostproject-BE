@@ -23,7 +23,7 @@ public class ChartController {
     private final ChartService chartService;
 
     @GetMapping("/info")
-    public Response<List<ChartInfoRes>> getInfo(@RequestParam ("tier") int tier,
+    public Response<ChartInfoRes> getInfo(@RequestParam ("tier") int tier,
                                                 @RequestParam ("category") String category,
                                                 @RequestParam ("grade") String grade,
                                                 @RequestParam ("value") String value,
@@ -32,7 +32,7 @@ public class ChartController {
     }
 
     @PostMapping("/custom")
-    public Response<List<ChartInfoRes>> getCustomInfo(@RequestBody CustomChartReq customChartReq) {
+    public Response<ChartInfoRes> getCustomInfo(@RequestBody CustomChartReq customChartReq) {
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getCustomChartInfo(customChartReq));
     }
 
