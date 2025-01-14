@@ -23,6 +23,10 @@ public class SelectOptionReq {
         private int value;
     }
 
+    public int getOptionFromList(int i) {
+        return etcOptionList.get(i).getOption();
+    }
+
     static public int filterTier(int tier, String itemGrade) {
         if(tier == 4) {
             return 4;

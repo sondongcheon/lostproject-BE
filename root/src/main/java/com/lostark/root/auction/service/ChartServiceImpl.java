@@ -4,7 +4,6 @@ import com.lostark.root.auction.db.dto.CustomChartEnum;
 import com.lostark.root.auction.db.dto.req.CustomChartReq;
 import com.lostark.root.auction.db.dto.res.ChartInfoRes;
 import com.lostark.root.auction.db.entity.ChartGenericEntity;
-import com.lostark.root.auction.db.entity.CustomEntity;
 import com.lostark.root.common.db.repository.LogCountRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,11 +71,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartInfoRes getCustomChartInfo(CustomChartReq req) {
-        String box1 = "";
-        String box2 = "";
-        String box3 = "";
-        String box4 = "";
-        String box5 = "";
+        String box1 = "", box2 = "", box3 = "", box4 = "", box5 = "";
 
         if (req.getBox1() != 0) {
             box1 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "

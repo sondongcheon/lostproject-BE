@@ -112,4 +112,8 @@ public class SearchResultRes {
                 .build();
 
     }
+
+    public LocalDateTime getAuctionEndDate() {
+        return auctionInfo.getEndDate();
+    }
 }

@@ -51,4 +51,14 @@ public class ApiAuctionRes {
             public boolean IsValuePercentage;
         }
     }
+
+    public LocalDateTime getFirstItemEndDate() {
+        return Items.getFirst().getAuctionInfo().getEndDate();
+    }
+
+    public int getBuyPrice(int i) {
+        return Items.get(i).getAuctionInfo().getBuyPrice();
+    }
+
+
 }
