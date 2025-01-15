@@ -28,10 +28,12 @@ import java.util.stream.IntStream;
 public class AuctionServiceImpl implements AuctionService {
 
     private final LogCountRepository logCountRepository;
+    private final int defaultNumber = 999;
 
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         log.info("Start Search");
+        //조회수
         logCountRepository.incrementCountByName("totalSearch");
         logCountRepository.incrementCountByName("todaySearch");
         boolean[] isExampleBool = new boolean[5];
@@ -39,16 +41,19 @@ public class AuctionServiceImpl implements AuctionService {
                 IntStream.range(0, 5)
                         .filter(i -> selectOptionReqList.get(i).getCategoryCode() == 200000)
                         .peek(i -> isExampleBool[i] = true)
-                        .boxed()// int를 Integer로 변환
+                        .boxed()// int -> integer 변환
                         .collect(Collectors.toList());
         int size = boxNumber.size();
 
+        //경우의 수 받아오기
         ApiAuctionRes[][] searchList = getSearchList(size, selectOptionReqList, boxNumber, type, key);
 
         List<int[]> permList = new ArrayList<>();
 
+        //특수추적 시 각 등급이 배치될 수 있는 경우의 수 리스트
         perm(boxNumber.stream().mapToInt(Integer::intValue).toArray(), new int[size], new boolean[size], 0, size, size, permList);
 
+        // 부위별 특옵이 2종류, 2가지만 2부위를 DFS 하기 위한 숫자 배열 만
         int[] example = {0, 2, 2, 4, 4};
         List<int[]> numOption = generateCombinations(example, isExampleBool);
 
@@ -57,59 +62,75 @@ public class AuctionServiceImpl implements AuctionService {
         SearchResultRes[] searchResultRes = new SearchResultRes[5];
         List<SearchResultRes>[] lists = new List[6];
 
+        // 특수추적
         for (int i = 0; i < size; i++) {
-            if (selectNum[0] == 999 && selectNum[1] == 999 ) {
-                searchResultRes[boxNumber.get(i)] = SearchResultRes.NoneResult();
-                continue;
-            }
-            if( i > 0 && searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[numOption.get(selectNum[1])[i-1]][permList.get(selectNum[0])[i-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
-                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1, type );
-            } else {
-                searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 0, type);
-            }
-
-            List<SearchResultRes> searchResultResList = new ArrayList<>();
-            for (int j = 0; j < searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().size(); j++) {
-                searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], j, type) );
-            }
-            lists[boxNumber.get(i)] = searchResultResList;
+            specialSearch(i, selectNum, boxNumber, numOption, permList, searchResultRes, lists, searchList, type);
         }
 
+        // 일반탐색
         for (int i = 0; i < 5; i++) {
-            if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getEtcOptionList().get(0).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(1).getOption() == 0 && selectOptionReqList.get(i).getEtcOptionList().get(2).getOption() == 0)) continue;
-
-            ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), key);
-            if (response.getItems() == null) {
-                searchResultRes[i] = SearchResultRes.NoneResult();
-                continue;
-            }
-
-            int duplication = 0;
-            if( i == 1 && searchResultRes[2] != null && searchResultRes[2].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
-                duplication = 1;
-            } else if (i == 2 && searchResultRes[1] != null && searchResultRes[1].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
-                duplication = 1;
-            } else if (i == 3 && searchResultRes[4] != null && searchResultRes[4].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
-                duplication = 1;
-            } else if (i == 4 && searchResultRes[3] != null && searchResultRes[3].getAuctionInfo().getEndDate().equals(Objects.requireNonNull(response).Items.getFirst().getAuctionInfo().getEndDate())) {
-                duplication = 1;
-            }
-            searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication, type);
-
-            List<SearchResultRes> searchResultResList = new ArrayList<>();
-            for (int j = 0; j < response.getItems().size(); j++) {
-                searchResultResList.add( SearchResultRes.fromApiRes( Objects.requireNonNull(response), j, type) );
-            }
-            lists[i] = searchResultResList;
-
+            normalSearch(i, isExampleBool, selectOptionReqList, searchResultRes, lists, key, type);
         }
 
         return new SearchFinalRes(searchResultRes, lists);
     }
 
+    //특수 추적 -> DTO 로  했어야하나 ?
+    private void specialSearch(int i, int[] selectNum, List<Integer> boxNumber, List<int[]> numOption, List<int[]> permList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists, ApiAuctionRes[][] searchList, int type) {
+        //결과 없음 백트래킹
+        if (selectNum[0] == defaultNumber && selectNum[1] == defaultNumber ) {
+            searchResultRes[boxNumber.get(i)] = SearchResultRes.NoneResult();
+            return;
+        }
+        //같은 부위 일경우 만료 날짜를 기반으로 다음 매물을 채택
+        if( i > 0 && searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getFirstItemEndDate().equals(searchList[numOption.get(selectNum[1])[i-1]][permList.get(selectNum[0])[i-1]].getFirstItemEndDate())) {
+            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1, type );
+        } else {
+            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 0, type);
+        }
 
+        List<SearchResultRes> searchResultResList = new ArrayList<>();
+        for (int j = 0; j < searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().size(); j++) {
+            searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], j, type) );
+        }
+        lists[boxNumber.get(i)] = searchResultResList;
+    }
 
+    //일반 탐색
+    private void normalSearch(int i, boolean[] isExampleBool, List<SelectOptionReq> selectOptionReqList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists ,String key, int type) {
+        if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getOptionFromList(0) == 0 && selectOptionReqList.get(i).getOptionFromList(1) == 0 && selectOptionReqList.get(i).getOptionFromList(2) == 0)) return;
 
+        ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), key);
+        if (response.getItems() == null) {
+            searchResultRes[i] = SearchResultRes.NoneResult();
+            return;
+        }
+
+        // 같은 옵션 다음 매물 체크
+        int duplication = accDuplicateCheck(searchResultRes, response, i);
+        searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication, type);
+
+        lists[i] = IntStream.range(0, response.getItems().size())
+                .mapToObj(j -> SearchResultRes.fromApiRes(Objects.requireNonNull(response), j, type))
+                .toList();
+
+    }
+
+    private int accDuplicateCheck (SearchResultRes[] searchResultRes, ApiAuctionRes response, int i) {
+        Map<Integer, Integer> indexMap = Map.of(
+                1, 2,
+                2, 1,
+                3, 4,
+                4, 3
+        );
+        // 검사 대상이 없는 경우 0 반환
+        if (!indexMap.containsKey(i)) return 0;
+        int target = indexMap.get(i);
+        if( searchResultRes[target] != null && searchResultRes[target].getAuctionEndDate().equals(Objects.requireNonNull(response).getFirstItemEndDate())) {
+            return 1;
+        }
+        return 0;
+    }
 
     private ApiAuctionRes requestAuction(ApiAuctionReq apiAuctionReq, String key) {
         try {
@@ -120,7 +141,7 @@ public class AuctionServiceImpl implements AuctionService {
             headers.set("Authorization", "bearer " + key);
             String baseUrl = "https://developer-lostark.game.onstove.com/auctions/items";
             HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(apiAuctionReq, headers);
-            
+
             return restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class).getBody();
 
         } catch (HttpStatusCodeException exception) {
@@ -154,11 +175,6 @@ public class AuctionServiceImpl implements AuctionService {
             }
             ApiAuctionReq apiAuctionReq = ApiAuctionReq.fromSelectOption(selectOptionReqList.get(boxNumber.get(i)));
             for(int j = 0; j < 3; j ++) {
-//                int maxValue = searchOptionReqList.get(i).getEtcOptions().getFirst().getMaxValue();
-                //중복 조회 방지
-//                if (searchList[j][rank[i][0]][rank[i][1]] != null) continue;
-//                if ( ( j == 0 && !isExampleBool[0]) || ( j == 1 && !isExampleBool[1] && !isExampleBool[2] ) || ( j == 2 && !isExampleBool[3] && !isExampleBool[4] )) continue;
-
                 /*  41추피% 42적주피%
                  *   45공% 46무공%
                  *   49치적% 50 치피%
@@ -201,7 +217,7 @@ public class AuctionServiceImpl implements AuctionService {
     //최저가 탐색
     private int[] searchLowPrice(List<int[]> permList, List<int[]> numOption, int size, ApiAuctionRes[][] searchList) {
         int total = Integer.MAX_VALUE;
-        int[] selectNum = new int[] {999, 999};
+        int[] selectNum = new int[] {defaultNumber, defaultNumber};
         for (int i = 0; i < permList.size(); i++) {
 
             int[] tmpPerm = permList.get(i);
@@ -214,10 +230,10 @@ public class AuctionServiceImpl implements AuctionService {
                         tmp = 99999999;
                         continue;
                     }
-                    if( k > 0 && searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems() != null && searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getEndDate().equals(searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems().getFirst().getAuctionInfo().getEndDate())) {
-                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().size() < 2 ? 99999999 : searchList[tmpOption[k]][tmpPerm[k]].getItems().get(1).getAuctionInfo().getBuyPrice();
+                    if( k > 0 && searchList[tmpOption[k-1]][tmpPerm[k-1]].getItems() != null && searchList[tmpOption[k]][tmpPerm[k]].getFirstItemEndDate().equals(searchList[tmpOption[k-1]][tmpPerm[k-1]].getFirstItemEndDate())) {
+                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().size() < 2 ? 99999999 : searchList[tmpOption[k]][tmpPerm[k]].getBuyPrice(1);
                     } else {
-                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getItems().getFirst().getAuctionInfo().getBuyPrice();
+                        tmp += searchList[tmpOption[k]][tmpPerm[k]].getBuyPrice(0);
                     }
                 }
                 if( total > tmp) {
@@ -229,8 +245,8 @@ public class AuctionServiceImpl implements AuctionService {
 
         }
         if( total > 99999998) {
-            selectNum[0] = 999;
-            selectNum[1] = 999;
+            selectNum[0] = defaultNumber;
+            selectNum[1] = defaultNumber;
         }
         return selectNum;
     }
@@ -238,7 +254,6 @@ public class AuctionServiceImpl implements AuctionService {
     // [0,1] , new, new, 0, 2, 2, new
     private void perm(int[] arr, int[] output, boolean[] visited, int depth, int n, int r, List<int[]> result) {
         if (depth == r) {
-//            System.out.println("output = " + Arrays.toString(output));
             result.add(Arrays.copyOf(output, r));
             return;
         }
@@ -248,7 +263,6 @@ public class AuctionServiceImpl implements AuctionService {
                 visited[i] = true;
                 output[depth] = arr[i];
                 perm(arr, output, visited, depth + 1, n, r, result);
-//                output[depth] = 0;
                 visited[i] = false;
             }
         }
@@ -256,8 +270,6 @@ public class AuctionServiceImpl implements AuctionService {
 
     private static List<int[]> generateCombinations(int[] example, boolean[] isExampleBool) {
         List<int[]> result = new ArrayList<>();
-
-        // 조합 생성 (DFS 방식)
         generateCombinationsRecursive(example, isExampleBool, new ArrayList<>(), 0, result);
 
         return result;
@@ -277,31 +289,30 @@ public class AuctionServiceImpl implements AuctionService {
         }
 
         // 현재 자리가 사용되는 경우: 가능한 조합을 모두 탐색
-        int value = example[index];
         if (index == 0) { // 첫 번째 자리
             current.add(0);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
 
             current.add(1);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
         } else if (index == 1 || index == 2) { // 두 번째와 세 번째 자리
             current.add(2);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
 
             current.add(3);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
         } else if (index == 3 || index == 4) { // 네 번째와 다섯 번째 자리
             current.add(4);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
 
             current.add(5);
             generateCombinationsRecursive(example, isExampleBool, current, index + 1, result);
-            current.remove(current.size() - 1);
+            current.removeLast();
         }
     }
 
