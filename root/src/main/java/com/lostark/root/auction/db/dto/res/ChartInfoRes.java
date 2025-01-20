@@ -23,6 +23,8 @@ public class ChartInfoRes {
     private int weeklyAvg;
     private int weeklyAvgP;
 
+    private String name;
+
     @Getter
     @Setter
     @NoArgsConstructor

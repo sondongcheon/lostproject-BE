@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ChartService {
 
-    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2);
+    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type);
 
     public ChartInfoRes getCustomChartInfo(CustomChartReq req);
 
