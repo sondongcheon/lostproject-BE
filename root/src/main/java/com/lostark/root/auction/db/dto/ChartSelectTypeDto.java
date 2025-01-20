@@ -13,15 +13,25 @@ public class ChartSelectTypeDto {
     private int categoryCode;
     private String grade;
 
-    public static ChartSelectTypeDto ofOption(int categoryCode, int tier, int valueLevel, int valueLevel2, int quality, String grade) {
-
-        int option =
-        switch (categoryCode) {
-         case 200010 -> 41;
-         case 200020 -> 45;
-         case 200030 -> 49;
-         default -> 0;
-        };
+    public static ChartSelectTypeDto ofOption(int categoryCode, int tier, int valueLevel, int valueLevel2, int quality, String grade, int type) {
+        int option;
+        if(type == 0) {
+            option =
+                    switch (categoryCode) {
+                        case 200010 -> 41;
+                        case 200020 -> 45;
+                        case 200030 -> 49;
+                        default -> 0;
+                    };
+        } else {
+            option =
+                    switch (categoryCode) {
+                        case 200010 -> 43;
+                        case 200020 -> 47;
+                        case 200030 -> 51;
+                        default -> 0;
+                    };
+        }
 
         return ChartSelectTypeDto.builder()
                 .etcOption(OptionValueEnum.getByOptionTierValueLevel(option, tier, valueLevel))

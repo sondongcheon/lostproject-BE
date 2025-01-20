@@ -121,8 +121,12 @@ public class ChartServiceScheduled {
     }
 
     private void get4T (String grade, int category, int value, int value2) {
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(category, 4, value, value2, 80, grade)));
+        ApiAuctionRes response = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(category, 4, value, value2, 80, grade, 0)));
         saveResult(response, "chart_4t_" + toCategoryTableName(category) + "_" + toGradeTableName(grade) + "_" + toValue(value) + toValue(value2));
+
+        if(category == 200020) return;
+        ApiAuctionRes responseSup = requestAuction(ApiAuctionReq.toChart(ChartSelectTypeDto.ofOption(category, 4, value, value2, 80, grade, 2)));
+        saveResult(responseSup, "chart_sup_4t_" + toCategoryTableName(category) + "_" + toGradeTableName(grade) + "_" + toValue(value) + toValue(value2));
     }
 
     private void saveResult (ApiAuctionRes response, String tableName) {
