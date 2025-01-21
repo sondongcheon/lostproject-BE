@@ -24,12 +24,12 @@ public class ChartServiceImpl implements ChartService {
     private final EntityManager entityManager;
     private final LogCountRepository logCountRepository;
 
-    private static final int valTime = 6;
+    private static final int valTime = 8;
 
     @Override
-    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2) {
+    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type) {
 
-        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC";
+        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC";
 
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql, ChartGenericEntity.class).getResultList();
         entityManager.clear();
@@ -43,29 +43,35 @@ public class ChartServiceImpl implements ChartService {
                 );})
                 .toList();
 
-        String Wmin = "SELECT MIN(price) AS lowest_price FROM chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        String Wmin = "SELECT MIN(price) AS lowest_price FROM chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
 
         int weeklyMin = (int) entityManager.createNativeQuery(Wmin).getSingleResult();
         entityManager.clear();
 
-        String Wavg = "SELECT AVG(price) AS average_price FROM chart_" + tier + "t_" + category + "_" + grade + "_" + value + value2 +
+        String Wavg = "SELECT AVG(price) AS average_price FROM chart_" + type + tier + "t_" + category + "_" + grade + "_" + value + value2 +
                 " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
 
         int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(Wavg).getSingleResult()).intValue();
         entityManager.clear();
 
-        String Mmin = "SELECT MIN(price) AS lowest_price FROM chart_" + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        String Mmin = "SELECT MIN(price) AS lowest_price FROM chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
 
         int monthMin = (int) entityManager.createNativeQuery(Mmin).getSingleResult();
         entityManager.clear();
 
-        String Mavg = "SELECT AVG(price) AS average_price FROM chart_" + tier + "t_" + category + "_" + grade + "_" + value + value2 +
+        String Mavg = "SELECT AVG(price) AS average_price FROM chart_" + type + tier + "t_" + category + "_" + grade + "_" + value + value2 +
                 " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
 
         int monthAvg = ((BigDecimal) entityManager.createNativeQuery(Mavg).getSingleResult()).intValue();
         entityManager.clear();
 
-        return new ChartInfoRes(chartInfo, monthMin, (int) (((double) (chartInfo.getLast().getBuyPrice() - monthMin) / monthMin) * 100), monthAvg, (int) (((double) (chartInfo.getLast().getBuyPrice() - monthAvg) / monthAvg) * 100), weeklyMin, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyMin) / weeklyMin) * 100),  weeklyAvg, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyAvg) / weeklyAvg) * 100));
+        return new ChartInfoRes(chartInfo,
+                monthMin,
+                (int) (((double) (chartInfo.getLast().getBuyPrice() - monthMin) / monthMin) * 100), monthAvg,
+                (int) (((double) (chartInfo.getLast().getBuyPrice() - monthAvg) / monthAvg) * 100), weeklyMin,
+                (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyMin) / weeklyMin) * 100),  weeklyAvg,
+                (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyAvg) / weeklyAvg) * 100),
+                toChartName(tier, category, grade, value, value2, type));
 
     }
 
@@ -162,13 +168,67 @@ public class ChartServiceImpl implements ChartService {
         int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(queryAvg).getSingleResult()).intValue();
         entityManager.clear();
 
-        return new ChartInfoRes(chartInfo, 0, 0, 0, 0, weeklyMin, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyMin) / weeklyMin) * 100),  weeklyAvg, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyAvg) / weeklyAvg) * 100));
+        return new ChartInfoRes(chartInfo, 0, 0, 0, 0, weeklyMin, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyMin) / weeklyMin) * 100),  weeklyAvg, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyAvg) / weeklyAvg) * 100), null);
 
     }
 
     private String toTableName (int number) {
         CustomChartEnum chartEnum = CustomChartEnum.getByNumber(number);
         return "chart_" + chartEnum.getTier() + "t_" + chartEnum.getCategory() + "_" + chartEnum.getGrade() + "_" + chartEnum.getValue() + chartEnum.getValue2();
+    }
+
+    private String toChartName (int tier, String category, String grade, String value, String value2, String type) {
+        StringBuilder name = new StringBuilder(tier + "티어");
+
+        name.append(switch (category) {
+            case "neck" -> " 목걸이";
+            case "earing" -> " 귀걸이";
+            case "ring" -> " 반지";
+            default -> null;
+        });
+
+        name.append(switch (grade) {
+            case "godae" -> " 고대 /";
+            case "umuoel" -> " 유물 /";
+            default -> null;
+        });
+
+        if(!value.equals("x")) {
+            name.append(switch (category+type) {
+                case "neck" -> " 추피%";
+                case "earing" -> " 공%";
+                case "ring" -> " 치적%";
+                case "necksup_" -> " 아덴+";
+                case "ringsup_" -> " 아공강%";
+                default -> null;
+            });
+            name.append(switch (value) {
+                case "h" -> " 상 /";
+                case "m" -> " 중 /";
+                case "l" -> " 하 /";
+                default -> null;
+            });
+        }
+
+        if(!value2.equals("x")) {
+            name.append(switch (category+type) {
+                case "neck" -> " 적주피%";
+                case "earing" -> " 무공%";
+                case "ring" -> " 치피%";
+                case "necksup_" -> " 낙인력+";
+                case "ringsup_" -> " 아피강%";
+                default -> null;
+            });
+
+            name.append(switch (value2) {
+                case "h" -> " 상";
+                case "m" -> " 중";
+                case "l" -> " 하";
+                default -> null;
+            });
+        }
+        return name.toString();
+
     }
 
     public void loadChartPage(Cookie[] cookies, HttpServletResponse response) {

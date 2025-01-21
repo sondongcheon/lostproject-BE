@@ -11,6 +11,7 @@ import com.lostark.root.exception.CustomException;
 import com.lostark.root.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,15 @@ public class AuctionServiceImpl implements AuctionService {
     private final LogCountRepository logCountRepository;
     private final int defaultNumber = 999;
 
+    @Value("${api.public}")
+    private String apikey;
+
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         log.info("Start Search");
+
+        //공용키 전환
+        if (key.isEmpty()) key = apikey;
         //조회수
         logCountRepository.incrementCountByName("totalSearch");
         logCountRepository.incrementCountByName("todaySearch");
