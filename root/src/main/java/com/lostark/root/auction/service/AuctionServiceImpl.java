@@ -39,7 +39,7 @@ public class AuctionServiceImpl implements AuctionService {
         log.info("Start Search");
 
         //공용키 전환
-        if (key.isEmpty() || key == null) key = apikey;
+        if (key.isEmpty() || key == null || key.length() < 5) key = apikey;
         //조회수
         logCountRepository.incrementCountByName("totalSearch");
         logCountRepository.incrementCountByName("todaySearch");
