@@ -29,10 +29,11 @@ public class ChartServiceScheduled {
 
     @Scheduled(cron = "${schedule.chart.cron}")
     @Transactional
-    protected void run() {
+    protected void run() throws InterruptedException {
 
         log.info("start Chart Info");
         runGrade("고대");
+        Thread.sleep(60000);
         runGrade("유물");
 
         log.info("end Chart Info");

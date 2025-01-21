@@ -13,9 +13,9 @@ public class CustomExceptionHandler {
         return ErrorResponseEntity.toResponseEntity(e.getErrorCode());
     }
 
-//    @ExceptionHandler(RuntimeException.class)
-//    protected ResponseEntity<ErrorResponseEntity> handleRuntimeException(RuntimeException e) {
-//        log.error("Runtime 오류 발생 {}", e.getMessage());
-//        return ErrorResponseEntity.CustomRuntime(e);
-//    }
+    @ExceptionHandler(RuntimeException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleRuntimeException(RuntimeException e) {
+        log.error("Runtime 오류 발생 {}", e.getMessage());
+        return ErrorResponseEntity.CustomRuntime(e);
+    }
 }
