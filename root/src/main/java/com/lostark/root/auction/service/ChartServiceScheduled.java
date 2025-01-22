@@ -27,7 +27,7 @@ public class ChartServiceScheduled {
     @Value("${api.key}")
     private String apikey;
 
-    @Scheduled(cron = "${schedule.chart.cron}")
+//    @Scheduled(cron = "${schedule.chart.cron}")
     @Transactional
     protected void run() throws InterruptedException {
 

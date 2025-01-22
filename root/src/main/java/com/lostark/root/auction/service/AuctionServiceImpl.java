@@ -85,6 +85,7 @@ public class AuctionServiceImpl implements AuctionService {
     //특수 추적 -> DTO 로  했어야하나 ?
     private void specialSearch(int i, int[] selectNum, List<Integer> boxNumber, List<int[]> numOption, List<int[]> permList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists, ApiAuctionRes[][] searchList, int type) {
         //결과 없음 백트래킹
+        log.info("SpecialSearch {}", i);
         if (selectNum[0] == defaultNumber && selectNum[1] == defaultNumber ) {
             searchResultRes[boxNumber.get(i)] = SearchResultRes.NoneResult();
             return;
@@ -178,42 +179,29 @@ public class AuctionServiceImpl implements AuctionService {
         int[][] rank = new int[size][2];
         for (int i = 0; i < size; i++) {
             for (int k = 0; k < 2; k++) {
-                rank[i][k] = selectOptionReqList.get(boxNumber.get(i)).getEtcOptionList().get(k).getValue();
+                rank[i][k] = selectOptionReqList.get(boxNumber.get(i)).getValue(k);
             }
             ApiAuctionReq apiAuctionReq = ApiAuctionReq.fromSelectOption(selectOptionReqList.get(boxNumber.get(i)));
             for(int j = 0; j < 3; j ++) {
-                /*  41추피% 42적주피%
-                 *   45공% 46무공%
-                 *   49치적% 50 치피%
-                 */
-                apiAuctionReq.setCategoryCode(200010 + (j * 10));
-                apiAuctionReq.getEtcOptions().getFirst().setSecondOption(41 + type + (j * 4));
-                apiAuctionReq.getEtcOptions().get(1).setSecondOption(42 + type + (j * 4));
+                // 부위, Option 효과 설정
+                apiAuctionReq.setAccInfo(j, type);
 
                 for (int k = 0; k < 2; k++) {
                     // 상상 중중 하하 백트래킹 필요
                     if(rank[i][k%2] != 0) {
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().getFirst().getSecondOption(), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][k % 2]).getValue();
-                        apiAuctionReq.getEtcOptions().getFirst().setFirstOption(7);
-                        apiAuctionReq.getEtcOptions().getFirst().setMinValue(value);
-                        apiAuctionReq.getEtcOptions().getFirst().setMaxValue(value);
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getSecondOption(0), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][k % 2]).getValue();
+                        apiAuctionReq.setValue(0, value);
                     } else {
                         apiAuctionReq.getEtcOptions().getFirst().setFirstOption(null);
                     }
 
                     if(rank[i][(k+1)%2] != 0) {
-
-                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getEtcOptions().get(1).getSecondOption(), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][(k+1)%2]).getValue();
-                        apiAuctionReq.getEtcOptions().get(1).setFirstOption(7);
-                        apiAuctionReq.getEtcOptions().get(1).setMinValue(value);
-                        apiAuctionReq.getEtcOptions().get(1).setMaxValue(value);
+                        int value =  OptionValueEnum.getByOptionTierValueLevel(apiAuctionReq.getSecondOption(1), SelectOptionReq.filterTier(apiAuctionReq.getItemTier(), apiAuctionReq.getItemGrade()), rank[i][(k+1)%2]).getValue();
+                        apiAuctionReq.setValue(1, value);
                     } else {
                         apiAuctionReq.getEtcOptions().get(1).setFirstOption(null);
-
                     }
-
                     searchList[j*2 + k][boxNumber.get(i)] = requestAuction(apiAuctionReq, key);
-
                 }
             }
         }

@@ -85,4 +85,20 @@ public class ApiAuctionReq {
                 .pageNo(0)
                 .sortCondition("ASC").build();
     }
+
+    public Integer getSecondOption(int index) {
+        return etcOptions.get(index).getSecondOption();
+    }
+
+    public void setValue(int index, int value) {
+        etcOptions.get(index).setFirstOption(7);
+        etcOptions.get(index).setMinValue(value);
+        etcOptions.get(index).setMaxValue(value);
+    }
+
+    public void setAccInfo(int index, int type) {
+        setCategoryCode(200010 + (index * 10));
+        etcOptions.getFirst().setSecondOption(41 + type + (index * 4));
+        etcOptions.get(1).setSecondOption(42 + type + (index * 4));
+    }
 }
