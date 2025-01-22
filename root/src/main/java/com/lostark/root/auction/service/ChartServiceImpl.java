@@ -29,8 +29,8 @@ public class ChartServiceImpl implements ChartService {
     @Override
     public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type) {
 
-        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) = 0 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC";
-
+        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC";
+        System.out.println("check");
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql, ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
