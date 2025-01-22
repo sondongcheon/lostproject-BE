@@ -29,9 +29,9 @@ public class ChartServiceImpl implements ChartService {
     @Override
     public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type) {
 
-        String sql = "SELECT * FROM (SELECT * FROM " + "chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC";
-        System.out.println("check");
-        List<ChartGenericEntity> result = entityManager.createNativeQuery(sql, ChartGenericEntity.class).getResultList();
+        StringBuilder sql = new StringBuilder(tier);
+        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE HOUR(create_at) % ").append(valTime).append(" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC");
+        List<ChartGenericEntity> result = entityManager.createNativeQuery(sql.toString(), ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
         List<ChartInfoRes.ChartInfo> chartInfo = result.stream()
@@ -43,26 +43,29 @@ public class ChartServiceImpl implements ChartService {
                 );})
                 .toList();
 
-        String Wmin = "SELECT MIN(price) AS lowest_price FROM chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        StringBuilder Wmin = new StringBuilder("SELECT MIN(price) AS lowest_price FROM chart_");
+        Wmin.append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
 
-        int weeklyMin = (int) entityManager.createNativeQuery(Wmin).getSingleResult();
+        int weeklyMin = (int) entityManager.createNativeQuery(Wmin.toString()).getSingleResult();
         entityManager.clear();
 
-        String Wavg = "SELECT AVG(price) AS average_price FROM chart_" + type + tier + "t_" + category + "_" + grade + "_" + value + value2 +
-                " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        StringBuilder Wavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_");
+        Wavg.append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
 
-        int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(Wavg).getSingleResult()).intValue();
+        int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(Wavg.toString()).getSingleResult()).intValue();
         entityManager.clear();
 
-        String Mmin = "SELECT MIN(price) AS lowest_price FROM chart_" + type + tier + "t_" + category + "_" + grade +"_" + value + value2 + " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        StringBuilder Mmin = new StringBuilder("SELECT MIN(price) AS lowest_price FROM chart_");
+        Mmin.append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
-        int monthMin = (int) entityManager.createNativeQuery(Mmin).getSingleResult();
+        int monthMin = (int) entityManager.createNativeQuery(Mmin.toString()).getSingleResult();
         entityManager.clear();
 
-        String Mavg = "SELECT AVG(price) AS average_price FROM chart_" + type + tier + "t_" + category + "_" + grade + "_" + value + value2 +
-                " WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        StringBuilder Mavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_");
+        Mavg.append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
-        int monthAvg = ((BigDecimal) entityManager.createNativeQuery(Mavg).getSingleResult()).intValue();
+
+        int monthAvg = ((BigDecimal) entityManager.createNativeQuery(Mavg.toString()).getSingleResult()).intValue();
         entityManager.clear();
 
         return new ChartInfoRes(chartInfo,
@@ -77,66 +80,57 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartInfoRes getCustomChartInfo(CustomChartReq req) {
-        String box1 = "", box2 = "", box3 = "", box4 = "", box5 = "";
+        StringBuilder[] box = new StringBuilder[] {new StringBuilder(), new StringBuilder(), new StringBuilder(), new StringBuilder(), new StringBuilder()};
 
         if (req.getBox1() != 0) {
-            box1 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "
-                    + "    FROM " + toTableName(req.getBox1()) + " "
-                    + "    WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            box[0].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
+                    .append(toTableName(req.getBox1()))
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
             if( req.getBox2() != 0 || req.getBox3() != 0 || req.getBox4() != 0 || req.getBox5() != 0) {
-                box1 += "    UNION ALL ";
+                box[0].append("UNION ALL ");
             }
         }
 
         if (req.getBox2() != 0) {
-            box2 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "
-                    + "    FROM " + toTableName(req.getBox2()) + " "
-                    + "    WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            box[1].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
+                    .append(toTableName(req.getBox2()))
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
             if( req.getBox3() != 0 || req.getBox4() != 0 || req.getBox5() != 0) {
-                box2 += "    UNION ALL ";
+                box[1].append("UNION ALL ");
             }
         }
 
         if (req.getBox3() != 0) {
-            box3 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "
-                    + "    FROM " + toTableName(req.getBox3()) + " "
-                    + "    WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            box[2].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
+                    .append(toTableName(req.getBox3()))
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
             if(req.getBox4() != 0 || req.getBox5() != 0) {
-                box3 += "    UNION ALL ";
+                box[2].append("UNION ALL ");
             }
         }
 
         if (req.getBox4() != 0) {
-            box4 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "
-                    + "    FROM " + toTableName(req.getBox4()) + " "
-                    + "    WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            box[3].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
+                    .append(toTableName(req.getBox4()))
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
             if( req.getBox5() != 0) {
-                box4 += "    UNION ALL ";
+                box[3].append("UNION ALL ");
             }
         }
 
         if (req.getBox5() != 0) {
-            box5 = "    SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price "
-                    + "    FROM " + toTableName(req.getBox5()) + " "
-                    + "    WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            box[4].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
+                    .append(toTableName(req.getBox5()))
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
         }
 
-        String unionTable = "SELECT create_at, SUM(price) AS price "
-                + "    FROM ( "
-                + box1
-                + box2
-                + box3
-                + box4
-                + box5
-                + ") AS combined_prices ";
+        StringBuilder unionTable = new StringBuilder("SELECT create_at, SUM(price) AS price FROM ( ");
+        unionTable.append(box[0]).append(box[1]).append(box[2]).append(box[3]).append(box[4]).append(") AS combined_prices ");
 
-        String queryStr = unionTable
-                + "WHERE HOUR(create_at) % "+ valTime +" = 0 AND MINUTE(create_at) = 0 "
-                + "GROUP BY create_at "
-                + "ORDER BY create_at ASC "
-                + "LIMIT 15";
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append(unionTable).append("WHERE HOUR(create_at) % ").append(valTime).append(" = 0 AND MINUTE(create_at) = 0 GROUP BY create_at ORDER BY create_at ASC LIMIT 15");
 
-        List<Tuple> result = entityManager.createNativeQuery(queryStr, Tuple.class).getResultList();
+        List<Tuple> result = entityManager.createNativeQuery(queryStr.toString(), Tuple.class).getResultList();
         entityManager.clear();
 
         List<ChartInfoRes.ChartInfo> chartInfo = result.stream()
@@ -149,32 +143,25 @@ public class ChartServiceImpl implements ChartService {
                     );})
                 .toList();
 
-        String queryMin = "SELECT MIN(price) AS min "
-                + "FROM ( "
-                + unionTable
-                + "    GROUP BY create_at "
-                + ") AS combined_min";
+        StringBuilder queryMin = new StringBuilder("SELECT MIN(price) AS min FROM ( ");
+        queryMin.append(unionTable).append(" GROUP BY create_at ) AS combined_min");
 
-
-        int weeklyMin = ((BigDecimal) entityManager.createNativeQuery(queryMin).getSingleResult()).intValue();
+        int weeklyMin = ((BigDecimal) entityManager.createNativeQuery(queryMin.toString()).getSingleResult()).intValue();
         entityManager.clear();
 
-        String queryAvg = "SELECT AVG(price) AS avg "
-                + "FROM ( "
-                + unionTable
-                + "    GROUP BY create_at "
-                + ") AS combined_avg";
+        StringBuilder queryAvg = new StringBuilder("SELECT AVG(price) AS avg FROM ( ");
+        queryAvg.append(unionTable).append(" GROUP BY create_at ) AS combined_avg");
 
-        int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(queryAvg).getSingleResult()).intValue();
+        int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(queryAvg.toString()).getSingleResult()).intValue();
         entityManager.clear();
 
         return new ChartInfoRes(chartInfo, 0, 0, 0, 0, weeklyMin, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyMin) / weeklyMin) * 100),  weeklyAvg, (int) (((double) (chartInfo.getLast().getBuyPrice() - weeklyAvg) / weeklyAvg) * 100), null);
 
     }
 
-    private String toTableName (int number) {
+    private StringBuilder toTableName (int number) {
         CustomChartEnum chartEnum = CustomChartEnum.getByNumber(number);
-        return "chart_" + chartEnum.getTier() + "t_" + chartEnum.getCategory() + "_" + chartEnum.getGrade() + "_" + chartEnum.getValue() + chartEnum.getValue2();
+        return new StringBuilder("chart_").append(chartEnum.getTier()).append("t_").append(chartEnum.getCategory()).append("_").append(chartEnum.getGrade()).append("_").append(chartEnum.getValue()).append(chartEnum.getValue2());
     }
 
     private String toChartName (int tier, String category, String grade, String value, String value2, String type) {

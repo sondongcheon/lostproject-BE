@@ -47,4 +47,8 @@ public class SelectOptionReq {
         return 0;   //Error
     }
 
+    public int getValue(int index) {
+        return etcOptionList.get(index).getValue();
+    }
+
 }
