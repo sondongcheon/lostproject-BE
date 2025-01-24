@@ -70,7 +70,7 @@ public class SearchResultRes {
         static public Option fromApiResOption(ApiAuctionRes.Item.Option option, int type, int tier, String itemGrade) {
 
             int val = type == 0 ? OptionDisplayDel.getByName(option.getOptionName()).getOption() : OptionDisplaySup.getByName(option.getOptionName()).getOption();
-            OptionValueEnum optionValueEnum = OptionValueEnum.getByDisplayValue(val, option.getValue() + (option.IsValuePercentage ? "%" : null), SelectOptionReq.filterTier(tier, itemGrade));
+            OptionValueEnum optionValueEnum = OptionValueEnum.getByDisplayValue(val, String.format("%.2f", option.getValue()) + (option.IsValuePercentage ? "%" : null), SelectOptionReq.filterTier(tier, itemGrade));
             String grade = null;
             switch (optionValueEnum.getValueLevel()) {
                 case 3 -> grade = "상";
