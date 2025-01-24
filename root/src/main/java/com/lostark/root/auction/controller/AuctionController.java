@@ -1,6 +1,8 @@
 package com.lostark.root.auction.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
+import com.lostark.root.auction.db.dto.res.EquipmentRes;
 import com.lostark.root.auction.db.dto.res.SearchFinalRes;
 import com.lostark.root.auction.service.AuctionService;
 import com.lostark.root.common.Response;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,5 +26,10 @@ public class AuctionController {
     @PostMapping("/test5")
     public Response<SearchFinalRes> test(@RequestBody List<SelectOptionReq> selectOptionReqList, @RequestParam("type") int type, HttpServletRequest request) {
         return Response.of(HttpStatus.OK, "gd", auctionService.getAuctionResult(selectOptionReqList, type, request.getHeader("apiKey")));
+    }
+
+    @GetMapping("/equipment/{name}")
+    public Response<EquipmentRes[]> getEquipment(@PathVariable (value = "name") String name, HttpServletRequest request) {
+        return Response.of(HttpStatus.OK, "gd", auctionService.getEquipment(request.getHeader("apiKey"), name));
     }
 }

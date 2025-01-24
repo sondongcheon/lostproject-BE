@@ -14,6 +14,7 @@ public enum OptionDisplay {
     //WEAPON_ATTACK_PLUS(54, "무기 공격력 "),
     //STATUS_ATTACK_DURATION(57, "상태이상 공격 지속시간"),
     SUP_IDENTITY_INCREASE(43, "세레나데, 신성, 조화 게이지 획득량 증가"),
+    SUP_IDENTITY_INCREASE_2(43, "세레나데, 신앙, 조화 게이지 획득량"),
     SUP_TEAM_ATTACK_POINT_INCREASE(51, "아군 공격력 강화 효과"),
     SUP_TEAM_DAMAGE_POINT_INCREASE(52, "아군 피해량 강화 효과"),
     DAMAGE_TO_ENEMY(42, "적에게 주는 피해"),
@@ -30,4 +31,13 @@ public enum OptionDisplay {
 
     private final int option;
     private final String displayName;
+
+    public static OptionDisplay getByName(String name) {
+        for (OptionDisplay item : OptionDisplay.values()) {
+            if (item.getDisplayName().equals(name)) {
+                return item; // 일치하는 항목 반환
+            }
+        }
+        return NULL_OPTION; // 일치하는 항목이 없으면 null 반환
+    }
 }

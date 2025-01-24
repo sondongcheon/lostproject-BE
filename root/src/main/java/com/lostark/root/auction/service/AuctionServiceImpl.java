@@ -1,9 +1,16 @@
 package com.lostark.root.auction.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lostark.root.auction.db.dto.OptionDisplay;
 import com.lostark.root.auction.db.dto.OptionValueEnum;
 import com.lostark.root.auction.db.dto.req.APIreq.ApiAuctionReq;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
+import com.lostark.root.auction.db.dto.res.APIres.ApiEquipmentRes;
+import com.lostark.root.auction.db.dto.res.APIres.Tooltip;
+import com.lostark.root.auction.db.dto.res.EquipmentRes;
 import com.lostark.root.auction.db.dto.res.SearchFinalRes;
 import com.lostark.root.auction.db.dto.res.SearchResultRes;
 import com.lostark.root.common.db.repository.LogCountRepository;
@@ -12,12 +19,16 @@ import com.lostark.root.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.DataInput;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -80,6 +91,63 @@ public class AuctionServiceImpl implements AuctionService {
         }
 
         return new SearchFinalRes(searchResultRes, lists);
+    }
+
+    @Override
+    public EquipmentRes[] getEquipment(String key, String name) {
+        //공용키 전환
+        if (key.isEmpty() || key.length() < 10) key = apikey;
+        ApiEquipmentRes apiEquipmentRes = requestEquipment(key, name);
+
+        String itemLevel = apiEquipmentRes.getProfile().getItemAvgLevel();
+        EquipmentRes[] equipmentRes = new EquipmentRes[] {new EquipmentRes(itemLevel), new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel)};
+        int i = 0;
+        for (ApiEquipmentRes.ArmoryEquipment res : apiEquipmentRes.getEquipment()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            if(res.getType().equals("목걸이") || res.getType().equals("귀걸이") || res.getType().equals("반지")){
+                equipmentRes[i].setType(res.getType());
+                equipmentRes[i].setGrade(res.getGrade());
+                String result;
+                JsonNode tooltipNode;
+                try {
+                    tooltipNode = objectMapper.readTree(res.getTooltip());
+                } catch (Exception e) {
+                    throw new RuntimeException();
+                }
+                JsonNode findTier = tooltipNode.get("Element_001");
+                JsonNode findTierValue = findTier.get("value").get("leftStr2");
+                String tierStr = findTierValue.asText().replaceAll("</FONT>", "").replaceAll("<FONT SIZE='14'>아이템 티어 ", "");
+                int tier = Integer.parseInt(tierStr);
+                JsonNode element = tooltipNode.get("Element_005");
+                JsonNode value = element.get("value");
+                result = value.get("Element_001").asText();
+                result = result.replaceAll("<img.*?></img>", "");
+
+                String[] tmp = result.split("<BR>");
+
+                for (String optionFull : tmp) {
+                    
+                    String[] tmp2 = optionFull.split(" \\+");
+                    equipmentRes[i].getOption().add(tmp2[0]);
+                    equipmentRes[i].getValue().add(tmp2[1]);
+                    if(tmp2[0].contains("공격력") && !tmp2[0].contains("강화") && tmp2[1].contains("%")) {
+                        tmp2[0] += " ";
+                    }
+                    OptionDisplay nowDisplay = OptionDisplay.getByName(tmp2[0]);
+                    OptionValueEnum nowAcc = OptionValueEnum.getByDisplayValue(nowDisplay.getOption(), tmp2[1], tier);
+                    equipmentRes[i].getValueLevel().add(
+                            switch (nowAcc.getValueLevel()) {
+                                case 3 -> "상";
+                                case 2 -> "중";
+                                case 1 -> "하";
+                                default -> "공";
+                        });
+                    equipmentRes[i].setTier(tier);
+                }
+                i++;
+            }
+        }
+        return equipmentRes;
     }
 
     //특수 추적 -> DTO 로  했어야하나 ?
@@ -151,6 +219,28 @@ public class AuctionServiceImpl implements AuctionService {
             HttpEntity<ApiAuctionReq> requestEntity = new HttpEntity<>(apiAuctionReq, headers);
 
             return restTemplate.postForEntity(baseUrl, requestEntity, ApiAuctionRes.class).getBody();
+
+        } catch (HttpStatusCodeException exception) {
+            throw ApiErrorHandle(exception);
+        }
+    }
+
+    private ApiEquipmentRes requestEquipment(String key, String name) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+//            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + key);
+            String baseUrl = "https://developer-lostark.game.onstove.com/armories/characters/" + name + "?filters=profiles+equipment";
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            return restTemplate.exchange(
+                    baseUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    ApiEquipmentRes.class
+            ).getBody();
 
         } catch (HttpStatusCodeException exception) {
             throw ApiErrorHandle(exception);
