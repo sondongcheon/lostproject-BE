@@ -1,10 +1,7 @@
 package com.lostark.root.auction.db.entity;
 
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -27,6 +24,7 @@ public class ChartGenericEntity {
     private int upgrade;
     private int trade;
     private int price;
+    private int totalCount;
 
     @CreationTimestamp
     private LocalDateTime createAt;

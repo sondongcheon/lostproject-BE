@@ -50,7 +50,6 @@ public class ChartServiceScheduled {
 
         get4T(grade, category, 3, 3);
         get4T(grade, category, 2, 2);
-        get4T(grade, category, 1, 1);
         get4T(grade, category, 3 ,2);
         get4T(grade, category, 2, 3);
         get4T(grade, category, 3 ,1);
@@ -132,7 +131,8 @@ public class ChartServiceScheduled {
 
     private void saveResult (ApiAuctionRes response, String tableName) {
         ApiAuctionRes.Item item = response.getItems().getFirst();
-        String sql = "INSERT INTO " + tableName + " (tier, quality, upgrade, trade, price) VALUES (?, ?, ?, ?, ?)";
+        System.out.println("response.getTotalCount() = " + response.getTotalCount());
+        String sql = "INSERT INTO " + tableName + " (tier, quality, upgrade, trade, price, total_count) VALUES (?, ?, ?, ?, ?, ?)";
         entityManager
                 .createNativeQuery(sql)
                 .setParameter(1, item.getTier())
@@ -140,6 +140,7 @@ public class ChartServiceScheduled {
                 .setParameter(3, item.getAuctionInfo().getUpgradeLevel())
                 .setParameter(4, item.getAuctionInfo().getTradeAllowCount())
                 .setParameter(5, item.getAuctionInfo().getBuyPrice())
+                .setParameter(6, response.getTotalCount())
                 .executeUpdate();
     }
 

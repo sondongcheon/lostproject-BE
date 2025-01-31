@@ -28,8 +28,10 @@ public class ChartController {
                                                 @RequestParam ("grade") String grade,
                                                 @RequestParam ("value") String value,
                                                 @RequestParam ("value2") String value2,
-                                          @RequestParam ("type") String type) {
-        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getChartInfo(tier, category, grade, value, value2, type));
+                                          @RequestParam ("type") String type,
+                                          @RequestParam ("time") int time,
+                                          @RequestParam ("point") int point) {
+        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getChartInfo(tier, category, grade, value, value2, type, time, point));
     }
 
     @PostMapping("/custom")
