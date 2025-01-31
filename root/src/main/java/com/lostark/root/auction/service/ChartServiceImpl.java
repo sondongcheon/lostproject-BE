@@ -27,10 +27,10 @@ public class ChartServiceImpl implements ChartService {
     private static final int valTime = 8;
 
     @Override
-    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type) {
+    public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type, int time, int point) {
 
         StringBuilder sql = new StringBuilder(tier);
-        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE HOUR(create_at) % ").append(valTime).append(" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT 15 ) AS subquery ORDER BY create_at ASC");
+        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE HOUR(create_at) % ").append(time).append(" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql.toString(), ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
