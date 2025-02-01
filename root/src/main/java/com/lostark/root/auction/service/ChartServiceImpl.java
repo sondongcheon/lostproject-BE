@@ -39,7 +39,8 @@ public class ChartServiceImpl implements ChartService {
                     LocalDateTime tmp = entity.getCreateAt();
                     return new ChartInfoRes.ChartInfo(
                         tmp.getMonthValue() + "월 " + tmp.getDayOfMonth() +"일 " + tmp.getHour() + "시",
-                        entity.getPrice()
+                        entity.getPrice(),
+                            entity.getTotalCount()
                 );})
                 .toList();
 
@@ -139,7 +140,7 @@ public class ChartServiceImpl implements ChartService {
                     LocalDateTime tmp = LocalDateTime.parse(createAtStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
                     return new ChartInfoRes.ChartInfo(
                             tmp.getMonthValue() + "월 " + tmp.getDayOfMonth() +"일 " + tmp.getHour() + "시",
-                            entity.get("price", BigDecimal.class).intValue()
+                            entity.get("price", BigDecimal.class).intValue(),0
                     );})
                 .toList();
 
