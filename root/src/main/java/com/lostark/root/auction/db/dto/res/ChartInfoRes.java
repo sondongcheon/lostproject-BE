@@ -32,5 +32,6 @@ public class ChartInfoRes {
     public static class ChartInfo {
         private String time;
         private int buyPrice;
+        private int totalCount;
     }
 }
