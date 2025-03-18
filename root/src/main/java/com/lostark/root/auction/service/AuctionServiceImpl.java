@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lostark.root.auction.db.dto.OptionDisplay;
 import com.lostark.root.auction.db.dto.OptionValueEnum;
+import com.lostark.root.auction.db.dto.StatMinMaxEnum;
 import com.lostark.root.auction.db.dto.req.APIreq.ApiAuctionReq;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
@@ -174,9 +175,10 @@ public class AuctionServiceImpl implements AuctionService {
 
     //일반 탐색
     private void normalSearch(int i, boolean[] isExampleBool, List<SelectOptionReq> selectOptionReqList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists ,String key, int type) {
-        if (isExampleBool[i] || (selectOptionReqList.get(i).getCategoryCode() != 200000 && selectOptionReqList.get(i).getOptionFromList(0) == 0 && selectOptionReqList.get(i).getOptionFromList(1) == 0 && selectOptionReqList.get(i).getOptionFromList(2) == 0)) return;
+        SelectOptionReq selectOptionReq = selectOptionReqList.get(i);
+        if (isExampleBool[i] || (selectOptionReq.getCategoryCode() != 200000 && selectOptionReq.getOptionFromList(0) == 0 && selectOptionReq.getOptionFromList(1) == 0 && selectOptionReq.getOptionFromList(2) == 0)) return;
 
-        ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReqList.get(i)), key);
+        ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReq), key);
         if (response.getItems() == null) {
             searchResultRes[i] = SearchResultRes.NoneResult();
             return;
@@ -187,9 +189,16 @@ public class AuctionServiceImpl implements AuctionService {
         searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication, type);
 
         lists[i] = IntStream.range(0, response.getItems().size())
+                .filter(j -> filterStat(response.getItems().get(j).getOptions().get(2).getValue(), selectOptionReq.getCategoryCode(), response.getItems().get(j).getAuctionInfo().getUpgradeLevel(), selectOptionReq.getStatPercentage()))
                 .mapToObj(j -> SearchResultRes.fromApiRes(Objects.requireNonNull(response), j, type))
                 .toList();
 
+    }
+
+    //힘민지 필터
+    private boolean filterStat(double currentStat, int categoryCode, int upgrade, int per) {
+        StatMinMaxEnum stat = StatMinMaxEnum.getByCategory(categoryCode, upgrade);
+        return (currentStat - stat.getMinValue()) / (stat.getMaxValue() - stat.getMinValue()) * 100 >= per;
     }
 
     private int accDuplicateCheck (SearchResultRes[] searchResultRes, ApiAuctionRes response, int i) {

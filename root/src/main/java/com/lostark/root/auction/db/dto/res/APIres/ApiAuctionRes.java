@@ -37,7 +37,7 @@ public class ApiAuctionRes {
             public int BidStartPrice;
             public boolean isCompetitive;
             public int TradeAllowCount;
-            public int upgradeLevel;
+            public int UpgradeLevel;
         }
 
         @Getter
