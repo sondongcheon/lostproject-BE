@@ -50,6 +50,11 @@ public class ApiAuctionRes {
             public String ClassName;
             public boolean IsValuePercentage;
         }
+
+        public LocalDateTime getEndDate() {
+            return AuctionInfo.getEndDate();
+        }
+
     }
 
     public LocalDateTime getFirstItemEndDate() {
@@ -60,5 +65,12 @@ public class ApiAuctionRes {
         return Items.get(i).getAuctionInfo().getBuyPrice();
     }
 
+    public double getStat(int cntCount) {
+        return Items.get(cntCount).getOptions().get(2).getValue();
+    }
+
+    public int getCntUpgrade(int cntCount) {
+        return Items.get(cntCount).getAuctionInfo().getUpgradeLevel();
+    }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class SearchFinalRes {
 
     private SearchResultRes[] searchResultRes;
-    private List<SearchResultRes>[] result;
+    private List<SearchResultRes>[][] result;
 //    private List<SearchResultRes> necklace;
 //    private List<SearchResultRes> earring1;
 //    private List<SearchResultRes> earring2;

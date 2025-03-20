@@ -51,7 +51,7 @@ public class AuctionServiceImpl implements AuctionService {
         log.info("Start Search");
 
         //공용키 전환
-        if (key.isEmpty() || key.length() < 10) key = apikey;
+        if (key.length() < 10) key = apikey;
         //조회수
         logCountRepository.incrementCountByName("totalSearch");
         logCountRepository.incrementCountByName("todaySearch");
@@ -79,7 +79,7 @@ public class AuctionServiceImpl implements AuctionService {
         int[] selectNum = searchLowPrice(permList, numOption, size, searchList);
 
         SearchResultRes[] searchResultRes = new SearchResultRes[5];
-        List<SearchResultRes>[] lists = new List[6];
+        List<SearchResultRes>[][] lists = new List[6][1];
 
         // 특수추적
         for (int i = 0; i < size; i++) {
@@ -92,6 +92,24 @@ public class AuctionServiceImpl implements AuctionService {
         }
 
         return new SearchFinalRes(searchResultRes, lists);
+    }
+
+    @Override
+    public List<SearchResultRes> getAuctionNextPage(SelectOptionReq selectOptionReq, int type, String key) {
+        log.info("Get NextPage");
+        //공용키 전환
+        if (key.length() < 10) key = apikey;
+
+        ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReq), key);
+        List<ApiAuctionRes.Item> filterRes = new ArrayList<>();
+
+        int[] cnt = new int[] {selectOptionReq.getPageNo(), selectOptionReq.getNumberCount()};
+
+        makeFilterList(filterRes, response, selectOptionReq, cnt, key);
+
+        return IntStream.range(0, filterRes.size())
+                .mapToObj(j -> SearchResultRes.fromApiRes(filterRes, j, type, cnt[1], cnt[0]))
+                .toList();
     }
 
     @Override
@@ -152,7 +170,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     //특수 추적 -> DTO 로  했어야하나 ?
-    private void specialSearch(int i, int[] selectNum, List<Integer> boxNumber, List<int[]> numOption, List<int[]> permList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists, ApiAuctionRes[][] searchList, int type) {
+    private void specialSearch(int i, int[] selectNum, List<Integer> boxNumber, List<int[]> numOption, List<int[]> permList, SearchResultRes[] searchResultRes, List<SearchResultRes>[][] lists, ApiAuctionRes[][] searchList, int type) {
         //결과 없음 백트래킹
         log.info("SpecialSearch {}", i);
         if (selectNum[0] == defaultNumber && selectNum[1] == defaultNumber ) {
@@ -161,38 +179,61 @@ public class AuctionServiceImpl implements AuctionService {
         }
         //같은 부위 일경우 만료 날짜를 기반으로 다음 매물을 채택
         if( i > 0 && searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getFirstItemEndDate().equals(searchList[numOption.get(selectNum[1])[i-1]][permList.get(selectNum[0])[i-1]].getFirstItemEndDate())) {
-            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 1, type );
+            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems(), 1, type );
         } else {
-            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], 0, type);
+            searchResultRes[boxNumber.get(i)] = SearchResultRes.fromApiRes(searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems(), 0, type);
         }
 
         List<SearchResultRes> searchResultResList = new ArrayList<>();
         for (int j = 0; j < searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems().size(); j++) {
-            searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]], j, type) );
+            searchResultResList.add( SearchResultRes.fromApiRes( searchList[numOption.get(selectNum[1])[i]][permList.get(selectNum[0])[i]].getItems(), j, type) );
         }
-        lists[boxNumber.get(i)] = searchResultResList;
+        lists[boxNumber.get(i)][0] = searchResultResList;
     }
 
     //일반 탐색
-    private void normalSearch(int i, boolean[] isExampleBool, List<SelectOptionReq> selectOptionReqList, SearchResultRes[] searchResultRes, List<SearchResultRes>[] lists ,String key, int type) {
+    private void normalSearch(int i, boolean[] isExampleBool, List<SelectOptionReq> selectOptionReqList, SearchResultRes[] searchResultRes, List<SearchResultRes>[][] lists ,String key, int type) {
         SelectOptionReq selectOptionReq = selectOptionReqList.get(i);
         if (isExampleBool[i] || (selectOptionReq.getCategoryCode() != 200000 && selectOptionReq.getOptionFromList(0) == 0 && selectOptionReq.getOptionFromList(1) == 0 && selectOptionReq.getOptionFromList(2) == 0)) return;
 
         ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReq), key);
+
+        // 조회 결과에서 스텟을 가져와서 필터합니다.
+        List<ApiAuctionRes.Item> filterRes = new ArrayList<>();
+        // 조회 결과를 돌면서 10개의 결과를 가진 리스트를 채움 cnt[0]은 전달된 페이지 위치, [1]은 몇번째 까지 고려했는지
+        int[] cnt = new int[] {selectOptionReq.getPageNo(), selectOptionReq.getNumberCount()};
+        makeFilterList(filterRes, response, selectOptionReq, cnt, key);
+
         if (response.getItems() == null) {
             searchResultRes[i] = SearchResultRes.NoneResult();
             return;
         }
 
         // 같은 옵션 다음 매물 체크
-        int duplication = accDuplicateCheck(searchResultRes, response, i);
-        searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(response), duplication, type);
+        int duplication = accDuplicateCheck(searchResultRes, filterRes.getFirst(), i);
+        searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(filterRes), duplication, type, cnt[1], cnt[0]);
 
-        lists[i] = IntStream.range(0, response.getItems().size())
-                .filter(j -> filterStat(response.getItems().get(j).getOptions().get(2).getValue(), selectOptionReq.getCategoryCode(), response.getItems().get(j).getAuctionInfo().getUpgradeLevel(), selectOptionReq.getStatPercentage()))
-                .mapToObj(j -> SearchResultRes.fromApiRes(Objects.requireNonNull(response), j, type))
+        lists[i][0] = IntStream.range(0, filterRes.size())
+                .mapToObj(j -> SearchResultRes.fromApiRes(filterRes, j, type))
                 .toList();
 
+    }
+
+    //조회 결과들에서 수동필터 반복, cnt[0]은 전달된 페이지 위치, [1]은 몇번째 까지 고려했는지
+    private void makeFilterList(List<ApiAuctionRes.Item> filterRes, ApiAuctionRes response, SelectOptionReq selectOptionReq, int[] cnt, String key) {
+        while(filterRes.size() < 10 && response.getItems() != null) {
+            if ( response.getItems().size() <= cnt[1]) break;
+            else if( filterStat(response.getStat(cnt[1]), selectOptionReq.getCategoryCode(), response.getCntUpgrade(cnt[1]), selectOptionReq.getStatPercentage())) {
+                filterRes.add(response.getItems().get(cnt[1]));
+            }
+            // 0~9 순환
+            if (cnt[1] == 9) {
+                ++cnt[0];
+                cnt[1] = 0;
+                response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReq, cnt[0]), key);
+            }
+            else ++cnt[1];
+        }
     }
 
     //힘민지 필터
@@ -201,7 +242,7 @@ public class AuctionServiceImpl implements AuctionService {
         return (currentStat - stat.getMinValue()) / (stat.getMaxValue() - stat.getMinValue()) * 100 >= per;
     }
 
-    private int accDuplicateCheck (SearchResultRes[] searchResultRes, ApiAuctionRes response, int i) {
+    private int accDuplicateCheck (SearchResultRes[] searchResultRes, ApiAuctionRes.Item filterRes, int i) {
         Map<Integer, Integer> indexMap = Map.of(
                 1, 2,
                 2, 1,
@@ -211,7 +252,7 @@ public class AuctionServiceImpl implements AuctionService {
         // 검사 대상이 없는 경우 0 반환
         if (!indexMap.containsKey(i)) return 0;
         int target = indexMap.get(i);
-        if( searchResultRes[target] != null && searchResultRes[target].getAuctionEndDate().equals(Objects.requireNonNull(response).getFirstItemEndDate())) {
+        if( searchResultRes[target] != null && searchResultRes[target].getAuctionEndDate().equals(Objects.requireNonNull(filterRes).getEndDate())) {
             return 1;
         }
         return 0;
