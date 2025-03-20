@@ -64,9 +64,30 @@ public class ApiAuctionReq {
                 .categoryCode(selectOptionReq.getCategoryCode())
                 .itemTier(selectOptionReq.getTier())
                 .itemGrade(selectOptionReq.getItemGrade())
-                .pageNo(0)
+                .pageNo(selectOptionReq.getPageNo())
                 .sortCondition("ASC").build();
     }
+
+    // 03.20 힘민지 필터 몇페이지까지 했는지
+    static public ApiAuctionReq fromSelectOption(SelectOptionReq selectOptionReq, int cntPage) {
+        List<EtcOption> etcOptionList = new ArrayList<>();
+        for (int i = 0; i < selectOptionReq.getEtcOptionList().size(); i++) {
+            etcOptionList.add(ApiAuctionReq.EtcOption.fromSelectEtcOption(selectOptionReq.getEtcOptionList().get(i), SelectOptionReq.filterTier(selectOptionReq.getTier(), selectOptionReq.getItemGrade())));
+        }
+//        if(selectOptionReq.getEtcOptionList().size() == 1) etcOptionList.add(new EtcOption());
+        return ApiAuctionReq.builder()
+                .itemGradeQuality(selectOptionReq.getQuality())
+                .itemUpgradeLevel(selectOptionReq.getUpgradeLevel())
+                .itemTradeAllowCount(selectOptionReq.getTradeAllowCount())
+                .etcOptions(etcOptionList)
+                .sort("BUY_PRICE")
+                .categoryCode(selectOptionReq.getCategoryCode())
+                .itemTier(selectOptionReq.getTier())
+                .itemGrade(selectOptionReq.getItemGrade())
+                .pageNo(cntPage)
+                .sortCondition("ASC").build();
+    }
+
 
     static public ApiAuctionReq toChart(ChartSelectTypeDto dto) {
         List<EtcOption> etcOptionList = new ArrayList<>();

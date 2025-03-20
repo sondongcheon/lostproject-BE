@@ -16,6 +16,9 @@ public class SelectOptionReq {
     private Integer tradeAllowCount;
     private int categoryCode;
     private String itemGrade;
+    private int pageNo;
+    // 해당 페이지의 필터했던 매물이 어디까지인지
+    private int numberCount;
     private List<EtcOption> etcOptionList;
 
     @Getter

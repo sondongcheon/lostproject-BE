@@ -23,6 +23,8 @@ public class SearchResultRes {
     public String icon;
     public int gradeQuality;
     public AuctionInfo auctionInfo;
+    public int cntPage;
+    public int cntCount;
     public List<Option> options;
 
     @Getter
@@ -86,26 +88,48 @@ public class SearchResultRes {
 
     }
 
-    static public SearchResultRes fromApiRes(ApiAuctionRes apiAuctionRes, int duplication, int type) {
-        if(apiAuctionRes.getItems().size() <= duplication) return NoneResult();
+    // 오버로딩 방식 사용 03.20 추가 매물 표시 없을 때,
+    static public SearchResultRes fromApiRes(List<ApiAuctionRes.Item> items, int duplication, int type) {
+        if(items.size() <= duplication) return NoneResult();
         List<Option> optionList = new ArrayList<>();
-        for (int i = 0; i < apiAuctionRes.getItems().get(duplication).getOptions().size(); i++) {
-            ApiAuctionRes.Item target = apiAuctionRes.getItems().get(duplication);
+        for (int i = 0; i < items.get(duplication).getOptions().size(); i++) {
+            ApiAuctionRes.Item target = items.get(duplication);
             optionList.add(Option.fromApiResOption(target.getOptions().get(i), type, target.getTier() , target.getGrade()));
         }
 
         return SearchResultRes.builder()
-                .name(apiAuctionRes.getItems().get(duplication).getName())
-                .grade(apiAuctionRes.getItems().get(duplication).getGrade())
-                .icon(apiAuctionRes.getItems().get(duplication).getIcon())
-                .gradeQuality(apiAuctionRes.getItems().get(duplication).getGradeQuality())
-                .auctionInfo(AuctionInfo.fromApiResAuctionInfo(apiAuctionRes.getItems().get(duplication).getAuctionInfo()))
+                .name(items.get(duplication).getName())
+                .grade(items.get(duplication).getGrade())
+                .icon(items.get(duplication).getIcon())
+                .gradeQuality(items.get(duplication).getGradeQuality())
+                .auctionInfo(AuctionInfo.fromApiResAuctionInfo(items.get(duplication).getAuctionInfo()))
                 .options(optionList).build();
     }
 
+    // 오버로딩 방식 사용 03.20 힘민지 필터로 인한 현재 위치 cntCount 필요
+    static public SearchResultRes fromApiRes(List<ApiAuctionRes.Item> items, int duplication, int type, int cntCount, int cntPage) {
+        if(items.size() <= duplication) return NoneResult();
+        List<Option> optionList = new ArrayList<>();
+        for (int i = 0; i < items.get(duplication).getOptions().size(); i++) {
+            ApiAuctionRes.Item target = items.get(duplication);
+            optionList.add(Option.fromApiResOption(target.getOptions().get(i), type, target.getTier() , target.getGrade()));
+        }
+
+        return SearchResultRes.builder()
+                .name(items.get(duplication).getName())
+                .grade(items.get(duplication).getGrade())
+                .icon(items.get(duplication).getIcon())
+                .cntPage(cntPage)
+                .cntCount(cntCount)
+                .gradeQuality(items.get(duplication).getGradeQuality())
+                .auctionInfo(AuctionInfo.fromApiResAuctionInfo(items.get(duplication).getAuctionInfo()))
+                .options(optionList).build();
+    }
+
+
     static public SearchResultRes NoneResult() {
         return SearchResultRes.builder()
-                .name("검색 결과 없음")
+                .name("❌ 검색 결과 없음 ❌")
                 .grade("없음")
                 .auctionInfo(AuctionInfo.NoneResult())
                 .options(new ArrayList<>())

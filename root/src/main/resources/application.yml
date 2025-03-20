@@ -29,7 +29,7 @@ server:
 
 schedule:
   chart:
-    cron: 0 0/20 * * * *
+    cron: 0 0/30 * * * *
     use: true
 
 api:
