@@ -23,10 +23,10 @@ public class ChartBookController {
 
     private final ChartBookService chartBookService;
 
-//    @GetMapping("/info2")
-//    public Response<?> getInfo2() {
-//        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.testman());
-//    }
+    @GetMapping("/info2")
+    public Response<?> getInfo2() {
+        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.testman());
+    }
 
     @GetMapping("/info")
     public Response<List<ChartBookInfoRes>> getInfo() {

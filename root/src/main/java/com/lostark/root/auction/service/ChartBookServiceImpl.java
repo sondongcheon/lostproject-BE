@@ -25,14 +25,14 @@ public class ChartBookServiceImpl implements ChartBookService {
     @Transactional
     public Object testman() {
 //        ApiRequest.requestGetAPI("markets/items", "65203905");
-        List<Map<String, Object>> responseList = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65203705");
+        List<Map<String, Object>> responseList = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65201005");
 
         Map<String, Object> list = (Map<String, Object>) responseList.get(1);
         List<Map<String, Object>> ll = (List<Map<String, Object>>) list.get("Stats");
         Collections.reverse(ll);
         for (Map<String, Object> item : ll) {
 
-            String sql = "INSERT INTO " + "chart_book_tadae" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO " + "chart_book_yeahdun" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
             entityManager
                     .createNativeQuery(sql)
                     .setParameter(1, item.get("Date"))
@@ -41,37 +41,37 @@ public class ChartBookServiceImpl implements ChartBookService {
                     .executeUpdate();
         }
 
-        List<Map<String, Object>> responseList2 = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65201505");
+//        List<Map<String, Object>> responseList2 = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65203105");
+//
+//        Map<String, Object> list2 = (Map<String, Object>) responseList.get(1);
+//        List<Map<String, Object>> ll2 = (List<Map<String, Object>>) list2.get("Stats");
+////        Collections.reverse(ll2);
+//        for (Map<String, Object> item : ll2) {
+//
+//            String sql = "INSERT INTO " + "chart_book_mahee" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
+//            entityManager
+//                    .createNativeQuery(sql)
+//                    .setParameter(1, item.get("Date"))
+//                    .setParameter(2, item.get("AvgPrice"))
+//                    .setParameter(3, item.get("TradeCount"))
+//                    .executeUpdate();
+//        }
 
-        Map<String, Object> list2 = (Map<String, Object>) responseList.get(1);
-        List<Map<String, Object>> ll2 = (List<Map<String, Object>>) list.get("Stats");
-        Collections.reverse(ll2);
-        for (Map<String, Object> item : ll2) {
-
-            String sql = "INSERT INTO " + "chart_book_galdae" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
-            entityManager
-                    .createNativeQuery(sql)
-                    .setParameter(1, item.get("Date"))
-                    .setParameter(2, item.get("AvgPrice"))
-                    .setParameter(3, item.get("TradeCount"))
-                    .executeUpdate();
-        }
-
-        List<Map<String, Object>> responseList3 = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65203105");
-
-        Map<String, Object> list3 = (Map<String, Object>) responseList.get(1);
-        List<Map<String, Object>> ll3 = (List<Map<String, Object>>) list.get("Stats");
-        Collections.reverse(ll3);
-        for (Map<String, Object> item : ll3) {
-
-            String sql = "INSERT INTO " + "chart_book_mahee" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
-            entityManager
-                    .createNativeQuery(sql)
-                    .setParameter(1, item.get("Date"))
-                    .setParameter(2, item.get("AvgPrice"))
-                    .setParameter(3, item.get("TradeCount"))
-                    .executeUpdate();
-        }
+//        List<Map<String, Object>> responseList3 = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", "65203105");
+//
+//        Map<String, Object> list3 = (Map<String, Object>) responseList.get(1);
+//        List<Map<String, Object>> ll3 = (List<Map<String, Object>>) list3.get("Stats");
+//        Collections.reverse(ll3);
+//        for (Map<String, Object> item : ll3) {
+//
+//            String sql = "INSERT INTO " + "chart_book_mahee" + " (date, avg_price, trade_count) VALUES (?, ?, ?)";
+//            entityManager
+//                    .createNativeQuery(sql)
+//                    .setParameter(1, item.get("Date"))
+//                    .setParameter(2, item.get("AvgPrice"))
+//                    .setParameter(3, item.get("TradeCount"))
+//                    .executeUpdate();
+//        }
 
 
 
@@ -94,7 +94,7 @@ public class ChartBookServiceImpl implements ChartBookService {
             List<ChartBookEntity> result = entityManager.createNativeQuery(sql.toString(), ChartBookEntity.class).getResultList();
             entityManager.clear();
 
-            searchCurrent : for(int j = 0; i < 6; i++) {
+            searchCurrent : for(int j = 0; j < 6; j++) {
                 Map<String, Object> books = (Map<String, Object>) ApiRequest.requestPostAPI("markets/items", new ApiBookReq(j));
                 List<Map<String, Object>> items = (List<Map<String, Object>>) books.get("Items");
                 for(Map<String, Object> item : items) {
