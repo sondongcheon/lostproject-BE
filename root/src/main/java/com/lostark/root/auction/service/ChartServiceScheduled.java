@@ -131,7 +131,6 @@ public class ChartServiceScheduled {
 
     private void saveResult (ApiAuctionRes response, String tableName) {
         ApiAuctionRes.Item item = response.getItems().getFirst();
-        System.out.println("response.getTotalCount() = " + response.getTotalCount());
         String sql = "INSERT INTO " + tableName + " (tier, quality, upgrade, trade, price, total_count) VALUES (?, ?, ?, ?, ?, ?)";
         entityManager
                 .createNativeQuery(sql)
