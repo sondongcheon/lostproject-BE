@@ -5,6 +5,7 @@ import com.lostark.root.auction.db.dto.res.ChartBookInfoRes;
 import com.lostark.root.auction.db.dto.res.ChartInfoRes;
 import com.lostark.root.auction.service.ChartBookService;
 import com.lostark.root.common.Response;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,8 @@ public class ChartBookController {
 
     private final ChartBookService chartBookService;
 
-    @GetMapping("/info2")
-    public Response<?> getInfo2() {
-        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.testman());
-    }
-
     @GetMapping("/info")
-    public Response<List<ChartBookInfoRes>> getInfo() {
-        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.getChartBookInfo());
+    public Response<List<ChartBookInfoRes>> getInfo(HttpServletRequest request) {
+        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.getChartBookInfo(request.getHeader("apiKey")));
     }
 }
