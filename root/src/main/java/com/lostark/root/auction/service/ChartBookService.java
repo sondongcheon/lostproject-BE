@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface ChartBookService {
 
-    public Object testman();
-    public List<ChartBookInfoRes> getChartBookInfo();
+    public List<ChartBookInfoRes> getChartBookInfo(String key);
 }

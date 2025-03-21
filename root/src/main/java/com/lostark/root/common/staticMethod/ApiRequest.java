@@ -57,6 +57,52 @@ public class ApiRequest {
         }
     }
 
+    public static Object requestGetAPIPersonal(String url, String pathVariable) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + valueAutoWired.getPublicKey());
+            String baseUrl = "https://developer-lostark.game.onstove.com/" + url + "/" + pathVariable;
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Object> responseEntity = restTemplate.exchange(
+                    baseUrl,
+                    HttpMethod.GET,
+                    entity,
+                    Object.class
+            );
+
+            return responseEntity.getBody();
+
+        } catch (HttpStatusCodeException exception) {
+            throw ApiErrorHandle(exception);
+        }
+    }
+
+    public static Object requestGetAPIPersonal(String url, String pathVariable, String key) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + key);
+            String baseUrl = "https://developer-lostark.game.onstove.com/" + url + "/" + pathVariable;
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Object> responseEntity = restTemplate.exchange(
+                    baseUrl,
+                    HttpMethod.GET,
+                    entity,
+                    Object.class
+            );
+
+            return responseEntity.getBody();
+
+        } catch (HttpStatusCodeException exception) {
+            throw ApiErrorHandle(exception);
+        }
+    }
+
     public static Object requestPostAPI(String url, Object body) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -64,6 +110,40 @@ public class ApiRequest {
             headers.set("Content-Type", "application/json");
             headers.set("accept", "application/json");
             headers.set("Authorization", "bearer " + valueAutoWired.getApiKey());
+            String baseUrl = "https://developer-lostark.game.onstove.com/" + url;
+            HttpEntity<Object> requestEntity = new HttpEntity<>(body, headers);
+
+            return restTemplate.postForEntity(baseUrl, requestEntity, Object.class).getBody();
+
+        } catch (HttpStatusCodeException exception) {
+            throw ApiErrorHandle(exception);
+        }
+    }
+
+    public static Object requestPostAPIPersonal(String url, Object body) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + valueAutoWired.getPublicKey());
+            String baseUrl = "https://developer-lostark.game.onstove.com/" + url;
+            HttpEntity<Object> requestEntity = new HttpEntity<>(body, headers);
+
+            return restTemplate.postForEntity(baseUrl, requestEntity, Object.class).getBody();
+
+        } catch (HttpStatusCodeException exception) {
+            throw ApiErrorHandle(exception);
+        }
+    }
+
+    public static Object requestPostAPIPersonal(String url, Object body, String key) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set("accept", "application/json");
+            headers.set("Authorization", "bearer " + key);
             String baseUrl = "https://developer-lostark.game.onstove.com/" + url;
             HttpEntity<Object> requestEntity = new HttpEntity<>(body, headers);
 
