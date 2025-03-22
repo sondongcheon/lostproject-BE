@@ -35,9 +35,9 @@ public class ChartBookServiceScheduled {
             sql.append(names.get(i)).append(" (date, avg_price, trade_count) VALUES (?, ?, ?)");
             entityManager
                     .createNativeQuery(sql.toString())
-                    .setParameter(1, list.getFirst().get("Date"))
-                    .setParameter(2, list.getFirst().get("AvgPrice"))
-                    .setParameter(3, list.getFirst().get("TradeCount"))
+                    .setParameter(1, list.get(1).get("Date"))
+                    .setParameter(2, list.get(1).get("AvgPrice"))
+                    .setParameter(3, list.get(1).get("TradeCount"))
                     .executeUpdate();
             System.out.println("실행");
         }
