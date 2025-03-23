@@ -46,7 +46,7 @@ public class AuctionServiceImpl implements AuctionService {
         log.info("Start Search");
 
         //공용키 전환
-        if (key.length() < 10) key = apikey;
+        if (key == null || key.length() < 10) key = apikey;
         //조회수
         logCountRepository.incrementCountByName("totalSearch");
         logCountRepository.incrementCountByName("todaySearch");
@@ -93,7 +93,7 @@ public class AuctionServiceImpl implements AuctionService {
     public List<SearchResultRes> getAuctionNextPage(SelectOptionReq selectOptionReq, int type, String key) {
         log.info("Get NextPage");
         //공용키 전환
-        if (key.length() < 10) key = apikey;
+        if (key == null || key.length() < 10) key = apikey;
 
         ApiAuctionRes response = requestAuction(ApiAuctionReq.fromSelectOption(selectOptionReq), key);
         List<ApiAuctionRes.Item> filterRes = new ArrayList<>();
