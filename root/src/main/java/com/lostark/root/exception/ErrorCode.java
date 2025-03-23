@@ -20,7 +20,9 @@ public enum ErrorCode {
     NO_PARAMETER(HttpStatus.BAD_REQUEST, "API-003", "입력되지 않은 값이 있습니다. <br /> 입력 값을 다시 한번 확인하여 주세요."),
     NO_CONTENT(HttpStatus.BAD_REQUEST, "API-004", "입력하신 옵션에 대한 검색 결과가 없습니다. <br /> 실 매물이 없는 경우로 확인됩니다."),
     // 로아 점검중일때 Runtime 오류 발생 org.springframework.web.client.HttpServerErrorException$ServiceUnavailable: 503 Service Unavailable: [no body]
-    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "API-005", "현재 게임 서버가 점검중이거나 <br /> 옥션 서비스가 원활하지 않습니다.");
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "API-005", "현재 게임 서버가 점검중이거나 <br /> 옥션 서비스가 원활하지 않습니다."),
+    //캐릭터 검색결과 없음
+    NONE_CHARACTOR(HttpStatus.NOT_FOUND, "API-006", "검색 결과가 없습니다.");
 
     private final HttpStatus httpStatus;	// HttpStatus
     private final String code;				// ACCOUNT-001

@@ -1,6 +1,5 @@
 package com.lostark.root.auction.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lostark.root.auction.db.dto.OptionDisplay;
@@ -10,7 +9,6 @@ import com.lostark.root.auction.db.dto.req.APIreq.ApiAuctionReq;
 import com.lostark.root.auction.db.dto.req.SelectOptionReq;
 import com.lostark.root.auction.db.dto.res.APIres.ApiAuctionRes;
 import com.lostark.root.auction.db.dto.res.APIres.ApiEquipmentRes;
-import com.lostark.root.auction.db.dto.res.APIres.Tooltip;
 import com.lostark.root.auction.db.dto.res.EquipmentRes;
 import com.lostark.root.auction.db.dto.res.SearchFinalRes;
 import com.lostark.root.auction.db.dto.res.SearchResultRes;
@@ -20,7 +18,6 @@ import com.lostark.root.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.DataInput;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -117,6 +112,9 @@ public class AuctionServiceImpl implements AuctionService {
         //공용키 전환
         if (key.isEmpty() || key.length() < 10) key = apikey;
         ApiEquipmentRes apiEquipmentRes = requestEquipment(key, name);
+        if( apiEquipmentRes == null ) {
+            throw new CustomException(ErrorCode.NONE_CHARACTOR);
+        }
 
         String itemLevel = apiEquipmentRes.getProfile().getItemAvgLevel();
         EquipmentRes[] equipmentRes = new EquipmentRes[] {new EquipmentRes(itemLevel), new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel)};
@@ -138,6 +136,7 @@ public class AuctionServiceImpl implements AuctionService {
                 String tierStr = findTierValue.asText().replaceAll("</FONT>", "").replaceAll("<FONT SIZE='14'>아이템 티어 ", "");
                 int tier = Integer.parseInt(tierStr);
                 JsonNode element = tooltipNode.get("Element_005");
+
                 JsonNode value = element.get("value");
                 result = value.get("Element_001").asText();
                 result = result.replaceAll("<img.*?></img>", "");
@@ -154,14 +153,24 @@ public class AuctionServiceImpl implements AuctionService {
                     }
                     OptionDisplay nowDisplay = OptionDisplay.getByName(tmp2[0]);
                     OptionValueEnum nowAcc = OptionValueEnum.getByDisplayValue(nowDisplay.getOption(), tmp2[1], tier);
-                    equipmentRes[i].getValueLevel().add(
-                            switch (nowAcc.getValueLevel()) {
-                                case 3 -> "상";
-                                case 2 -> "중";
-                                case 1 -> "하";
-                                default -> "공";
-                        });
-                    equipmentRes[i].setTier(tier);
+                    equipmentRes[i].addValueLevel(nowAcc.getValueLevel());
+
+                }
+                equipmentRes[i].setTier(tier);
+
+                if(tier == 4) {
+                    //스텟 추출
+                    JsonNode statNode = tooltipNode.get("Element_004");
+                    String statText = statNode.get("value").get("Element_001").asText()
+                            .replaceAll("<FONT COLOR='.*?'>", "")
+                            .replaceAll("힘 \\+\\d+", "")
+                            .replaceAll("</FONT>", "")
+                            .replaceAll("<BR>", "")
+                            .replaceAll("민첩 \\+", "")
+                            .replaceAll("지능 \\+\\d+", "")
+                            .replaceAll("체력 \\+\\d+", "");
+                    //스텟 수치와 부위를 넣어서 스텟, 퍼센트, 등급을 한번에 처리
+                    equipmentRes[i].setStats(Double.parseDouble(statText), res.getType());
                 }
                 i++;
             }
