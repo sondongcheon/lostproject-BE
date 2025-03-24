@@ -213,14 +213,14 @@ public class AuctionServiceImpl implements AuctionService {
         int[] cnt = new int[] {selectOptionReq.getPageNo(), selectOptionReq.getNumberCount()};
         makeFilterList(filterRes, response, selectOptionReq, cnt, key);
 
-        if (response.getItems() == null) {
+        if (filterRes.isEmpty()) {
             searchResultRes[i] = SearchResultRes.NoneResult();
             return;
         }
 
         // 같은 옵션 다음 매물 체크
         int duplication = accDuplicateCheck(searchResultRes, filterRes.getFirst(), i);
-        searchResultRes[i] = SearchResultRes.fromApiRes(Objects.requireNonNull(filterRes), duplication, type, cnt[1], cnt[0]);
+        searchResultRes[i] = SearchResultRes.fromApiRes(filterRes, duplication, type, cnt[1], cnt[0]);
 
         lists[i][0] = IntStream.range(0, filterRes.size())
                 .mapToObj(j -> SearchResultRes.fromApiRes(filterRes, j, type))
