@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -30,7 +32,7 @@ public class ChartServiceImpl implements ChartService {
     public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type, int time, int point) {
 
         StringBuilder sql = new StringBuilder(tier);
-        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE HOUR(create_at) % ").append(time).append(" = 0 AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
+        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE DAY(create_at) % ").append(time).append(" = DAY(NOW()) % ").append(time).append(" AND HOUR(create_at) = HOUR(NOW()) AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql.toString(), ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
@@ -86,7 +88,7 @@ public class ChartServiceImpl implements ChartService {
         if (req.getBox1() != 0) {
             box[0].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
                     .append(toTableName(req.getBox1()))
-                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ");
             if( req.getBox2() != 0 || req.getBox3() != 0 || req.getBox4() != 0 || req.getBox5() != 0) {
                 box[0].append("UNION ALL ");
             }
@@ -95,7 +97,7 @@ public class ChartServiceImpl implements ChartService {
         if (req.getBox2() != 0) {
             box[1].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
                     .append(toTableName(req.getBox2()))
-                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ");
             if( req.getBox3() != 0 || req.getBox4() != 0 || req.getBox5() != 0) {
                 box[1].append("UNION ALL ");
             }
@@ -104,7 +106,7 @@ public class ChartServiceImpl implements ChartService {
         if (req.getBox3() != 0) {
             box[2].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
                     .append(toTableName(req.getBox3()))
-                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ");
             if(req.getBox4() != 0 || req.getBox5() != 0) {
                 box[2].append("UNION ALL ");
             }
@@ -113,7 +115,7 @@ public class ChartServiceImpl implements ChartService {
         if (req.getBox4() != 0) {
             box[3].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
                     .append(toTableName(req.getBox4()))
-                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ");
             if( req.getBox5() != 0) {
                 box[3].append("UNION ALL ");
             }
@@ -122,17 +124,20 @@ public class ChartServiceImpl implements ChartService {
         if (req.getBox5() != 0) {
             box[4].append("SELECT CONCAT(DATE_FORMAT(create_at, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE(create_at) / 10) * 10, 2, '0')) AS create_at, price FROM ")
                     .append(toTableName(req.getBox5()))
-                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ");
+                    .append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ");
         }
 
         StringBuilder unionTable = new StringBuilder("SELECT create_at, SUM(price) AS price FROM ( ");
         unionTable.append(box[0]).append(box[1]).append(box[2]).append(box[3]).append(box[4]).append(") AS combined_prices ");
 
         StringBuilder queryStr = new StringBuilder();
-        queryStr.append(unionTable).append("WHERE HOUR(create_at) % ").append(valTime).append(" = 0 AND MINUTE(create_at) = 0 GROUP BY create_at ORDER BY create_at ASC LIMIT 15");
+        //queryStr.append(unionTable).append("WHERE HOUR(create_at) % ").append(valTime).append(" = 0 AND MINUTE(create_at) = 0 GROUP BY create_at ORDER BY create_at ASC LIMIT 15");
+        queryStr.append(unionTable).append("WHERE DAY(create_at) % 1 = DAY(NOW()) % 1 AND HOUR(create_at) = HOUR(NOW()) AND MINUTE(create_at) < 10 GROUP BY create_at ORDER BY create_at DESC LIMIT 10");
 
         List<Tuple> result = entityManager.createNativeQuery(queryStr.toString(), Tuple.class).getResultList();
         entityManager.clear();
+
+        Collections.reverse(result);
 
         List<ChartInfoRes.ChartInfo> chartInfo = result.stream()
                 .map(entity -> {
