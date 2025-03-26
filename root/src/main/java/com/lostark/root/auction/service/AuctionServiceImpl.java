@@ -115,7 +115,7 @@ public class AuctionServiceImpl implements AuctionService {
         if( apiEquipmentRes == null ) {
             throw new CustomException(ErrorCode.NONE_CHARACTOR);
         }
-
+        log.info("search Character");
         String itemLevel = apiEquipmentRes.getProfile().getItemAvgLevel();
         EquipmentRes[] equipmentRes = new EquipmentRes[] {new EquipmentRes(itemLevel), new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel)};
         int i = 0;
