@@ -28,7 +28,7 @@ public class ChartJewelController {
                                           @RequestParam ("time") int time,
                                           @RequestParam ("point") int point,
                                           HttpServletRequest request) {
-        log.info("GetBookInfo");
+        if(level == 10 && name.equals("geop")) log.info("GetJewelInfo");
         return Response.of(HttpStatus.OK, "ChartJewelInfo get 성공", chartJewelService.getChartInfo(name, level, time, point));
     }
 

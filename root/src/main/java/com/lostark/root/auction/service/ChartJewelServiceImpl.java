@@ -43,19 +43,19 @@ public class ChartJewelServiceImpl implements ChartJewelService {
         int weeklyMin = (int) entityManager.createNativeQuery(Wmin.toString()).getSingleResult();
         entityManager.clear();
 
-        StringBuilder Wavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_");
+        StringBuilder Wavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_jewel_");
         Wavg.append(name).append("_").append(level).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
 
         int weeklyAvg = ((BigDecimal) entityManager.createNativeQuery(Wavg.toString()).getSingleResult()).intValue();
         entityManager.clear();
 
-        StringBuilder Mmin = new StringBuilder("SELECT MIN(price) AS lowest_price FROM chart_");
+        StringBuilder Mmin = new StringBuilder("SELECT MIN(price) AS lowest_price FROM chart_jewel_");
         Mmin.append(name).append("_").append(level).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
         int monthMin = (int) entityManager.createNativeQuery(Mmin.toString()).getSingleResult();
         entityManager.clear();
 
-        StringBuilder Mavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_");
+        StringBuilder Mavg = new StringBuilder("SELECT AVG(price) AS average_price FROM chart_jewel_");
         Mavg.append(name).append("_").append(level).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
 
@@ -72,8 +72,8 @@ public class ChartJewelServiceImpl implements ChartJewelService {
     }
 
     private String toChartName (String EngName, int level) {
-        StringBuilder name = new StringBuilder(level);
-        name.append("레벨 ");
+        StringBuilder name = new StringBuilder();
+        name.append(level).append("레벨 ");
 
         name.append(switch (EngName) {
             case "jack" -> " 작열";
