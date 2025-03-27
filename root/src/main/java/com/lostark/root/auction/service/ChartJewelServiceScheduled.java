@@ -19,12 +19,12 @@ public class ChartJewelServiceScheduled {
 
     private final EntityManager entityManager;
 
-    @Scheduled(cron = "${schedule.book.cron}")
+    @Scheduled(cron = "${schedule.jewel.cron}")
     @Transactional
     protected void saveResult() throws InterruptedException {
-
+        log.info("start Jewel Info");
         List<String> ids = List.of("7레벨 작열", "8레벨 작열", "9레벨 작열", "10레벨 작열", "7레벨 겁화", "8레벨 겁화", "9레벨 겁화", "10레벨 겁화");
-        List<String> names = List.of("jack_7", "jack_8", "jack_9", "jack_10", "jeop_7", "jeop_8", "jeop_9", "jeop_10");
+        List<String> names = List.of("jack_7", "jack_8", "jack_9", "jack_10", "geop_7", "geop_8", "geop_9", "geop_10");
 
 
         for (int i =0; i< ids.size(); i++) {
@@ -42,6 +42,8 @@ public class ChartJewelServiceScheduled {
                     .setParameter(2, buyPrice)
                     .executeUpdate();
         }
+
+        log.info("end Jewel Info");
     }
 
 }
