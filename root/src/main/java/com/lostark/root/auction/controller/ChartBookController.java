@@ -26,6 +26,7 @@ public class ChartBookController {
 
     @GetMapping("/info")
     public Response<List<ChartBookInfoRes>> getInfo(HttpServletRequest request) {
+        log.info("GetBookInfo");
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartBookService.getChartBookInfo(request.getHeader("apiKey")));
     }
 }

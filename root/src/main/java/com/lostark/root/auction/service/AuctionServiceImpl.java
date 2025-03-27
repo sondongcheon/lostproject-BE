@@ -43,8 +43,6 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
-        log.info("Start Search");
-
         //공용키 전환
         if (key == null || key.length() < 10) key = apikey;
         //조회수
@@ -91,7 +89,6 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public List<SearchResultRes> getAuctionNextPage(SelectOptionReq selectOptionReq, int type, String key) {
-        log.info("Get NextPage");
         //공용키 전환
         if (key == null || key.length() < 10) key = apikey;
 
@@ -115,7 +112,6 @@ public class AuctionServiceImpl implements AuctionService {
         if( apiEquipmentRes == null ) {
             throw new CustomException(ErrorCode.NONE_CHARACTOR);
         }
-        log.info("search Character");
         String itemLevel = apiEquipmentRes.getProfile().getItemAvgLevel();
         EquipmentRes[] equipmentRes = new EquipmentRes[] {new EquipmentRes(itemLevel), new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel),new EquipmentRes(itemLevel)};
         int i = 0;
