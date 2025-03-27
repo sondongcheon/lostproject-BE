@@ -31,7 +31,7 @@ public class ChartController {
                                           @RequestParam ("type") String type,
                                           @RequestParam ("time") int time,
                                           @RequestParam ("point") int point) {
-        log.info("GetChartInfo");
+        if(value.equals("h") && value2.equals("h"))log.info("GetChartInfo");
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getChartInfo(tier, category, grade, value, value2, type, time, point));
     }
 
