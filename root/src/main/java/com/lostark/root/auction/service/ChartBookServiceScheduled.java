@@ -39,7 +39,6 @@ public class ChartBookServiceScheduled {
                     .setParameter(2, list.get(1).get("AvgPrice"))
                     .setParameter(3, list.get(1).get("TradeCount"))
                     .executeUpdate();
-            System.out.println("실행");
         }
     }
 }

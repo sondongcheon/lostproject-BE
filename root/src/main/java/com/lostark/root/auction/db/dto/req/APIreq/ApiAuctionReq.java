@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@ToString
 public class ApiAuctionReq {
 
     private int itemGradeQuality;
@@ -23,13 +22,13 @@ public class ApiAuctionReq {
     private int categoryCode;
     private int itemTier;
     private String itemGrade;
+    private String itemName;
     private int pageNo;
     private String sortCondition;
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    @ToString
     @Setter
     @Builder
     public static class EtcOption {
@@ -88,6 +87,15 @@ public class ApiAuctionReq {
                 .sortCondition("ASC").build();
     }
 
+    static public ApiAuctionReq forJewel(String name) {
+        return ApiAuctionReq.builder()
+                .categoryCode(210000)
+                .sort("BUY_PRICE")
+                .itemName(name)
+                .sortCondition("ASC")
+                .build();
+    }
+
 
     static public ApiAuctionReq toChart(ChartSelectTypeDto dto) {
         List<EtcOption> etcOptionList = new ArrayList<>();
@@ -122,4 +130,6 @@ public class ApiAuctionReq {
         etcOptions.getFirst().setSecondOption(41 + type + (index * 4));
         etcOptions.get(1).setSecondOption(42 + type + (index * 4));
     }
+
+
 }

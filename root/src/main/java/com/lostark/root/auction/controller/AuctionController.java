@@ -26,17 +26,20 @@ public class AuctionController {
 
     @PostMapping("/test5")
     public Response<SearchFinalRes> test(@RequestBody List<SelectOptionReq> selectOptionReqList, @RequestParam("type") int type, HttpServletRequest request) {
+        log.info("Start Search");
         return Response.of(HttpStatus.OK, "gd", auctionService.getAuctionResult(selectOptionReqList, type, request.getHeader("apiKey")));
     }
 
     //다음 페이지 요청
     @PostMapping("/page")
     public Response<List<SearchResultRes>> auctionNextPage(@RequestBody SelectOptionReq selectOptionReq, @RequestParam("type") int type, HttpServletRequest request) {
+        log.info("Get Next Page");
         return Response.of(HttpStatus.OK, "nextPage", auctionService.getAuctionNextPage(selectOptionReq, type, request.getHeader("apiKey")));
     }
 
     @GetMapping("/equipment/{name}")
     public Response<EquipmentRes[]> getEquipment(@PathVariable (value = "name") String name, HttpServletRequest request) {
+        log.info("Search Character");
         return Response.of(HttpStatus.OK, "gd", auctionService.getEquipment(request.getHeader("apiKey"), name));
     }
 }

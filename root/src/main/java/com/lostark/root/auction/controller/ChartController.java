@@ -31,11 +31,13 @@ public class ChartController {
                                           @RequestParam ("type") String type,
                                           @RequestParam ("time") int time,
                                           @RequestParam ("point") int point) {
+        log.info("GetChartInfo");
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getChartInfo(tier, category, grade, value, value2, type, time, point));
     }
 
     @PostMapping("/custom")
     public Response<ChartInfoRes> getCustomInfo(@RequestBody CustomChartReq customChartReq) {
+        log.info("GetCustomChartInfo");
         return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartService.getCustomChartInfo(customChartReq));
     }
 

@@ -25,7 +25,6 @@ public class ChartBookServiceImpl implements ChartBookService {
 
     @Override
     public List<ChartBookInfoRes> getChartBookInfo(String key) {
-        log.info("GetBookInfo");
         List<String> names = List.of("adrenaline", "onehan", "yeahdun", "doldae", "jebat", "gisop", "jiljeng", "tadae", "galdae", "mahee");
         List<String> koreans = List.of("유물 아드레날린 각인서", "유물 원한 각인서", "유물 예리한 둔기 각인서", "유물 돌격대장 각인서", "유물 저주받은 인형 각인서", "유물 기습의 대가 각인서", "유물 질량 증가 각인서", "유물 타격의 대가 각인서", "유물 결투의 대가 각인서", "유물 마나의 흐름 각인서");
         List<Integer> ids = List.of(65203905, 65200505, 65201005, 65203305, 65202805, 65203005, 65203505, 65203705, 65201505, 65203105);
