@@ -90,6 +90,7 @@ public class ApiAuctionReq {
     static public ApiAuctionReq forJewel(String name) {
         return ApiAuctionReq.builder()
                 .categoryCode(210000)
+                .itemTier(4)
                 .sort("BUY_PRICE")
                 .itemName(name)
                 .sortCondition("ASC")
