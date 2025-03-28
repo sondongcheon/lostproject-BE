@@ -23,8 +23,18 @@ public class ChartBookServiceScheduled {
     @Transactional
     protected void saveResult() throws InterruptedException {
 
-        List<String> names = List.of("adrenaline", "onehan", "yeahdun", "doldae", "jebat", "gisop", "jiljeng", "tadae", "galdae", "mahee");
-        List<String> ids = List.of("65203905", "65200505", "65201005", "65203305", "65202805", "65203005", "65203505", "65203705", "65201505", "65203105");
+        List<String> names = List.of("adrenaline",
+                "onehan", "yeahdun", "doldae", "jebat", "gisop",
+                "jiljeng", "tadae", "galdae", "mahee", "supercharge",
+                "junmon", "mahwojung", "gacksung", "gudong", "socksock",
+                "bari", "ansang", "junggap", "jangdan", "gpta",
+                "attar", "maxmana", "junggi");
+        List<String> ids = List.of("65203905",
+                "65200505", "65201005", "65203305", "65202805", "65203005",
+                "65203505", "65203705", "65201505", "65203105", "65200605",
+                "65204105", "65201305", "65203405", "65200805", "65204005",
+                "65203205", "65200405", "65202105", "65204305", "65201105",
+                "65200305", "65201205", "65200205");
 
 
         for (int i =0; i< ids.size(); i++) {
