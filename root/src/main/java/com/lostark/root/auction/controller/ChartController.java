@@ -4,15 +4,12 @@ import com.lostark.root.auction.db.dto.req.CustomChartReq;
 import com.lostark.root.auction.db.dto.res.ChartInfoRes;
 import com.lostark.root.auction.service.ChartService;
 import com.lostark.root.common.Response;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/chart")
