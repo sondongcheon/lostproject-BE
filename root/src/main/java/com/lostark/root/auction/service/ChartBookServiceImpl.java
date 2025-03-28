@@ -36,7 +36,6 @@ public class ChartBookServiceImpl implements ChartBookService {
                 65203205, 65200405, 65202105, 65204305, 65201105,
                 65200305, 65201205, 65200205);
 
-
         List<ChartBookInfoRes> chartBookInfoResList = new ArrayList<>();
 
         for(int i = 0; i < names.size(); i++){
@@ -46,10 +45,10 @@ public class ChartBookServiceImpl implements ChartBookService {
             entityManager.clear();
 
             searchCurrent : for(int j = 1; j < 6; j++) {
+
                 Map<String, Object> books;
                 if(key == null || key.length() < 10) books = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiBookReq(j));
                 else {
-
                     books = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiBookReq(j), key);
                 }
                 List<Map<String, Object>> items = (List<Map<String, Object>>) books.get("Items");
