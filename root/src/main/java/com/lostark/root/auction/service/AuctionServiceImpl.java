@@ -228,7 +228,7 @@ public class AuctionServiceImpl implements AuctionService {
     private void makeFilterList(List<ApiAuctionRes.Item> filterRes, ApiAuctionRes response, SelectOptionReq selectOptionReq, int[] cnt, String key) {
         while(filterRes.size() < 10 && response.getItems() != null) {
             if ( response.getItems().size() <= cnt[1]) break;
-            else if( filterStat(response.getStat(cnt[1]), selectOptionReq.getCategoryCode(), response.getCntUpgrade(cnt[1]), selectOptionReq.getStatPercentage())) {
+            else if( filterStat(response.getStat(cnt[1]), selectOptionReq.getCategoryCode(), response.getCntUpgrade(cnt[1]), selectOptionReq.getStatPer())) {
                 filterRes.add(response.getItems().get(cnt[1]));
             }
             // 0~9 순환
