@@ -11,7 +11,7 @@ public class SelectOptionReq {
 
     private int tier;
     private int quality;
-    private int statPercentage;
+    private int statPer;
     private Integer upgradeLevel;
     private Integer tradeAllowCount;
     private int categoryCode;
