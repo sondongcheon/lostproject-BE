@@ -65,6 +65,16 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    public NoticeContentRes getNoticeContentDesc() {
+        Optional<NoticeEntity> optionalNotice = noticeRepository.findTopByOrderByNoticeIdDesc();
+        if (optionalNotice.isPresent()) {
+            NoticeEntity noticeEntity = optionalNotice.get();
+            return NoticeContentRes.fromEntity(noticeEntity);
+        }
+        return null;
+    }
+
+    @Override
     public long setNoticeContent(NoticeWriteReq noticeWriteReq) {
         if(noticeWriteReq.getPassword() == 1136) {
             return noticeRepository.save(NoticeEntity.fromReq(noticeWriteReq)).getNoticeId();
