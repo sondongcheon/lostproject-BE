@@ -16,6 +16,8 @@ public interface NoticeService {
 
     public NoticeContentRes getNoticeContent(long id);
 
+    public NoticeContentRes getNoticeContentDesc();
+
     public long setNoticeContent(NoticeWriteReq noticeWriteReq);
 
 }

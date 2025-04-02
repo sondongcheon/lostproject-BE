@@ -33,6 +33,11 @@ public class NoticeController {
         return Response.of(HttpStatus.OK, "Notice Content 조회 완료", noticeService.getNoticeContent(id));
     }
 
+    @GetMapping("/last")
+    public Response<NoticeContentRes> getNoticeContentLast() {
+        return Response.of(HttpStatus.OK, "Notice Last Content 조회 완료", noticeService.getNoticeContentDesc());
+    }
+
     @PostMapping
     public Response<Long> setNotice(@RequestBody NoticeWriteReq noticeWriteReq) {
         return Response.of(HttpStatus.OK, "Notice Content 저장 완료", noticeService.setNoticeContent(noticeWriteReq));
