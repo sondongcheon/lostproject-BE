@@ -1,7 +1,7 @@
 package com.lostark.root.auction.db.dto.res;
 
 
-import com.lostark.root.auction.db.entity.ChartBookEntity;
+import com.lostark.root.auction.db.entity.ChartItemsEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +15,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChartBookInfoRes {
+public class ChartItemsInfoRes {
 
     private String name;
+    private String iconUrl;
     private int currentMinPrice;
     private int recentPrice;
     private List<Stat> stats;
@@ -33,9 +34,9 @@ public class ChartBookInfoRes {
         private int tradeCount;
 
     }
-    public static ChartBookInfoRes fromEntity(List<ChartBookEntity> entityList, String name, int currentMinPrice, int recentPrice) {
+    public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl) {
         List<Stat> list = new ArrayList<>();
-        for ( ChartBookEntity entity : entityList) {
+        for ( ChartItemsEntity entity : entityList) {
             Stat stat = Stat.builder()
                     .date(entity.getDate())
                     .avgPrice(entity.getAvgPrice())
@@ -43,8 +44,9 @@ public class ChartBookInfoRes {
                     .build();
             list.add(stat);
         }
-        return ChartBookInfoRes.builder()
+        return ChartItemsInfoRes.builder()
                 .name(name)
+                .iconUrl(iconUrl)
                 .currentMinPrice(currentMinPrice)
                 .recentPrice(recentPrice)
                 .stats(list)

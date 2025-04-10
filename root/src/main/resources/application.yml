@@ -32,7 +32,10 @@ schedule:
     cron: 0 0 * * * *
     use: true
   book:
-    cron: 0 45 1 * * *
+    cron: 0 25 0 * * *
+    use: true
+  upgrade:
+    cron: 0 20 0 * * *
     use: true
   jewel:
     cron: 0 3 * * * *
