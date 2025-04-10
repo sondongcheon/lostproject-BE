@@ -22,7 +22,9 @@ public enum ErrorCode {
     // 로아 점검중일때 Runtime 오류 발생 org.springframework.web.client.HttpServerErrorException$ServiceUnavailable: 503 Service Unavailable: [no body]
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "API-005", "현재 게임 서버가 점검중이거나 <br /> 옥션 서비스가 원활하지 않습니다."),
     //캐릭터 검색결과 없음
-    NONE_CHARACTOR(HttpStatus.NOT_FOUND, "API-006", "검색 결과가 없습니다.");
+    NONE_CHARACTOR(HttpStatus.NOT_FOUND, "API-006", "검색 결과가 없습니다."),
+    //개발오류? 작성된 아이템이 아닌 번호가 들어옴
+    NONE_ITEM_TYPE(HttpStatus.BAD_REQUEST, "API-007", "찾을수 없는 아이템 종류 입니다. 잘못된 접근이거나 서버에 문제가 있습니다.");
 
     private final HttpStatus httpStatus;	// HttpStatus
     private final String code;				// ACCOUNT-001
