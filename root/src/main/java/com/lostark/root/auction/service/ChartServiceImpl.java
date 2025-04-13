@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +33,20 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type, int time, int point) {
-        StringBuilder sql = new StringBuilder(tier);
-        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE DAY(create_at) % ").append(time).append(" = DAY(NOW()) % ").append(time).append(" AND HOUR(create_at) = HOUR(NOW()) AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
+//        StringBuilder sql = new StringBuilder(tier);
+//        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE DAY(create_at) % ").append(time).append(" = DAY(NOW()) % ").append(time).append(" AND HOUR(create_at) = HOUR(NOW()) AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
+
+        StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE(NOW()) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
+
+        sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point-1).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
+                .append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2)
+                .append(" ch ON DATE(ch.create_at) = ds.target_date AND HOUR(ch.create_at) = HOUR(NOW()) AND MINUTE(ch.create_at) < 10 ORDER BY ds.target_date ASC");
+
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql.toString(), ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
         List<ChartInfoRes.ChartInfo> chartInfo = result.stream()
+                .filter(Objects::nonNull)
                 .map(entity -> {
                     LocalDateTime tmp = entity.getCreateAt();
                     return new ChartInfoRes.ChartInfo(
