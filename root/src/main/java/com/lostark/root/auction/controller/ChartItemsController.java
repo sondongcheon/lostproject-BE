@@ -8,10 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,10 +21,13 @@ public class ChartItemsController {
     private final ChartItemsService chartItemsService;
 
     @GetMapping("/info/{type}")
-    public Response<List<ChartItemsInfoRes>> getInfo(HttpServletRequest request, @PathVariable int type) {
+    public Response<List<ChartItemsInfoRes>> getInfo(HttpServletRequest request, @PathVariable int type,
+                                                     @RequestParam("time") int time,
+                                                     @RequestParam ("point") int point) {
         if(request.getHeader("apiKey") == null || request.getHeader("apiKey").length() < 10)  log.info("GetPublicUpgradeInfo");
         else log.info("GetUpgradeInfo");
-        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartItemsService.getChartInfo(request.getHeader("apiKey"), type));
+        log.info("Get Chart Type {}", type);
+        return Response.of(HttpStatus.OK, "ChartInfo get 성공", chartItemsService.getChartInfo(request.getHeader("apiKey"), type, time, point));
     }
 
 }

@@ -8,5 +8,5 @@ public interface ChartItemsService {
 
 //    public List<ChartItemsInfoRes> getChartBookInfo(String key);
 
-    public List<ChartItemsInfoRes> getChartInfo(String key, int type);
+    public List<ChartItemsInfoRes> getChartInfo(String key, int type, int time, int point);
 }

@@ -1,10 +1,10 @@
 package com.lostark.root.auction.service;
 
+
 import com.lostark.root.common.staticMethod.ApiRequest;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +18,7 @@ public class ChartItemsServiceScheduled {
 
     private final EntityManager entityManager;
 
-    @Scheduled(cron = "${schedule.book.cron}")
+    //@Scheduled(cron = "${schedule.book.cron}")
     @Transactional
     protected void saveBookResult() throws InterruptedException {
 
@@ -51,7 +51,7 @@ public class ChartItemsServiceScheduled {
         }
     }
 
-    @Scheduled(cron = "${schedule.upgrade.cron}")
+    //@Scheduled(cron = "${schedule.upgrade.cron}")
     @Transactional
     protected void saveUpgradeResult() throws InterruptedException {
 
