@@ -17,7 +17,7 @@ public class ChartGenericEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private int tier;
     private int quality;
