@@ -19,7 +19,7 @@ public class ChartJewelServiceScheduled {
 
     private final EntityManager entityManager;
 
-    //@Scheduled(cron = "${schedule.jewel.cron}")
+    @Scheduled(cron = "${schedule.jewel.cron}")
     @Transactional
     protected void saveResult() throws InterruptedException {
         log.info("start Jewel Info");
