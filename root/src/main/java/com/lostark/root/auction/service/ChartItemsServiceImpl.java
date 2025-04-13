@@ -73,7 +73,7 @@ public class ChartItemsServiceImpl implements ChartItemsService {
 //    }
 
     @Override
-    public List<ChartItemsInfoRes> getChartInfo(String key, int type) {
+    public List<ChartItemsInfoRes> getChartInfo(String key, int type, int time, int point) {
         ItemsData[] itemsData = selectType(type);
         List<ChartItemsInfoRes> chartItemsInfoResList = new ArrayList<>();
 
@@ -91,8 +91,15 @@ public class ChartItemsServiceImpl implements ChartItemsService {
         }
 
         for(int i = 0; i < itemsData.length; i++){
-            StringBuilder sql = new StringBuilder("(SELECT * FROM lostDB.chart_");
-            sql.append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName()).append(" order by date desc limit ").append(10).append(") order by date asc");
+            StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE(NOW()) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
+
+            sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point-1).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
+                    .append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName())
+                    .append(" ch ON DATE(ch.date) = ds.target_date ORDER BY ds.target_date ASC");
+
+
+//            StringBuilder sql = new StringBuilder("(SELECT * FROM lostDB.chart_");
+//            sql.append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName()).append(" order by date desc limit ").append(10).append(") order by date asc");
             List<ChartItemsEntity> result = entityManager.createNativeQuery(sql.toString(), ChartItemsEntity.class).getResultList();
             entityManager.clear();
 

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -35,15 +37,14 @@ public class ChartItemsInfoRes {
 
     }
     public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl) {
-        List<Stat> list = new ArrayList<>();
-        for ( ChartItemsEntity entity : entityList) {
-            Stat stat = Stat.builder()
-                    .date(entity.getDate())
-                    .avgPrice(entity.getAvgPrice())
-                    .tradeCount(entity.getTradeCount())
-                    .build();
-            list.add(stat);
-        }
+        List<Stat> list = entityList.stream()
+                .filter(Objects::nonNull)
+                .map(entity -> Stat.builder()
+                        .date(entity.getDate())
+                        .avgPrice(entity.getAvgPrice())
+                        .tradeCount(entity.getTradeCount())
+                        .build())
+                .collect(Collectors.toList());
         return ChartItemsInfoRes.builder()
                 .name(name)
                 .iconUrl(iconUrl)
