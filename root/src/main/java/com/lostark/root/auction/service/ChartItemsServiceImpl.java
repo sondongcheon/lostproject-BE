@@ -91,9 +91,9 @@ public class ChartItemsServiceImpl implements ChartItemsService {
         }
 
         for(int i = 0; i < itemsData.length; i++){
-            StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE(NOW()) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
+            StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
 
-            sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point-1).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
+            sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
                     .append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName())
                     .append(" ch ON DATE(ch.date) = ds.target_date ORDER BY ds.target_date ASC");
 
