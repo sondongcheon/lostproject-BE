@@ -90,6 +90,8 @@ public class ChartItemsServiceImpl implements ChartItemsService {
             k++;
         }
 
+        ChartItemsInfoRes.GoldoEvent goldoEvent = getGoldo(type, apiResultList);
+
         for(int i = 0; i < itemsData.length; i++){
             StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
 
@@ -108,7 +110,7 @@ public class ChartItemsServiceImpl implements ChartItemsService {
 
                 for(Map<String, Object> items : itemsList ) {
                     if ((int) items.get("Id") == itemsData[i].getId()) {
-                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
+                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon"), goldoEvent));
                         break searchCurrent;
                     }
                 }
@@ -130,5 +132,27 @@ public class ChartItemsServiceImpl implements ChartItemsService {
             default -> throw new CustomException(ErrorCode.NONE_ITEM_TYPE);
         }
 
+    }
+
+    private ChartItemsInfoRes.GoldoEvent getGoldo (int type, List<Map<String, Object>> apiResultList) {
+
+        switch (type) {
+            case 1 -> {
+                int totalCurrentMinPrice = 0;
+                for (Map<String, Object> apiResult : apiResultList) {
+                    List<Map<String, Object>> itemsList = (List<Map<String, Object>>) apiResult.get("Items");
+                    for (Map<String, Object> items : itemsList) {
+                        totalCurrentMinPrice += (int) items.get("CurrentMinPrice");
+                    }
+                }
+                double avgPrice = (double) totalCurrentMinPrice / 43;
+                avgPrice = Math.round(avgPrice * 100) / 100.0;
+                return new ChartItemsInfoRes.GoldoEvent(avgPrice);
+
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 }

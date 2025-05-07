@@ -2,10 +2,7 @@ package com.lostark.root.auction.db.dto.res;
 
 
 import com.lostark.root.auction.db.entity.ChartItemsEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,6 +22,9 @@ public class ChartItemsInfoRes {
     private int recentPrice;
     private List<Stat> stats;
 
+    //골두꺼비 이벤트 까지만 사용
+    private GoldoEvent goldoEvent;
+
     @Getter
     @Builder
     @NoArgsConstructor
@@ -36,7 +36,17 @@ public class ChartItemsInfoRes {
         private int tradeCount;
 
     }
-    public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl) {
+    //골두꺼비 이벤트 까지만 사용
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Builder
+    public static class GoldoEvent {
+
+        private double avgPrice;
+    }
+
+    public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl, GoldoEvent goldoEvent) {
         List<Stat> list = entityList.stream()
                 .filter(Objects::nonNull)
                 .map(entity -> Stat.builder()
@@ -51,6 +61,7 @@ public class ChartItemsInfoRes {
                 .currentMinPrice(currentMinPrice)
                 .recentPrice(recentPrice)
                 .stats(list)
+                .goldoEvent(goldoEvent)
                 .build();
     }
 }
