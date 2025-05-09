@@ -19,7 +19,7 @@ public class ChartItemsServiceScheduled {
 
     private final EntityManager entityManager;
 
-    //@Scheduled(cron = "${schedule.book.cron}")
+    @Scheduled(cron = "${schedule.book.cron}")
     @Transactional
     protected void saveBookResult() throws InterruptedException {
 
@@ -52,7 +52,7 @@ public class ChartItemsServiceScheduled {
         }
     }
 
-    //@Scheduled(cron = "${schedule.upgrade.cron}")
+    @Scheduled(cron = "${schedule.upgrade.cron}")
     @Transactional
     protected void saveUpgradeResult() throws InterruptedException {
 
