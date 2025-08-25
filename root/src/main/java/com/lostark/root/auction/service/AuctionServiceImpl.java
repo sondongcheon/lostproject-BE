@@ -131,16 +131,17 @@ public class AuctionServiceImpl implements AuctionService {
                 JsonNode findTierValue = findTier.get("value").get("leftStr2");
                 String tierStr = findTierValue.asText().replaceAll("</FONT>", "").replaceAll("<FONT SIZE='14'>아이템 티어 ", "");
                 int tier = Integer.parseInt(tierStr);
-                JsonNode element = tooltipNode.get("Element_005");
+                JsonNode element = tooltipNode.get("Element_006");
 
                 JsonNode value = element.get("value");
                 result = value.get("Element_001").asText();
                 result = result.replaceAll("<img.*?></img>", "");
-
-                String[] tmp = result.split("<BR>");
+                result = result.replaceAll("<FONT .*?>", "");
+                result = result.replaceAll("</FONT>", "");
+                String[] tmp = result.split("<br>");
 
                 for (String optionFull : tmp) {
-                    
+
                     String[] tmp2 = optionFull.split(" \\+");
                     equipmentRes[i].getOption().add(tmp2[0]);
                     equipmentRes[i].getValue().add(tmp2[1]);

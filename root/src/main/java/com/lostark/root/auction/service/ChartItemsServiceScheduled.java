@@ -83,4 +83,37 @@ public class ChartItemsServiceScheduled {
 
         }
     }
+
+    @Scheduled(cron = "${schedule.upgrade.cron}")
+    @Transactional
+    protected void saveGemResult() throws InterruptedException {
+
+
+        List<String> names = List.of("gogub_hondon_waegok",
+                "gogub_hondon_chimsik", "gogub_hondon_bunggwe", "gogub_jilseo_bulbyeon", "gogub_jilseo_gyeongo", "gogub_jilseo_anjeong",
+                "heegwi_hondon_waegok", "heegwi_hondon_chimsik", "heegwi_hondon_bunggwe", "heegwi_jilseo_bulbyeon", "heegwi_jilseo_gyeongo", "heegwi_jilseo_anjeong",
+                "youngwong_hondon_waegok",
+                "youngwong_hondon_chimsik", "youngwong_hondon_bunggwe", "youngwong_jilseo_bulbyeon", "youngwong_jilseo_gyeongo", "youngwong_jilseo_anjeong");
+        List<String> ids = List.of("67410401",
+                "67410301", "67410501", "67400201", "67400101", "67400001",
+                "67410402", "67410302", "67410502", "67400202", "67400102",
+                "67400002", "67410403", "67410303", "67410503", "67400203", "67400103", "67400003");
+
+
+        for (int i =0; i< ids.size(); i++) {
+            List<Map<String, Object>> responseList = (List<Map<String, Object>>) ApiRequest.requestGetAPI("markets/items", ids.get(i));
+            List<Map<String, Object>> list = (List<Map<String, Object>>) responseList.get(1).get("Stats");
+
+            StringBuilder sql = new StringBuilder("INSERT INTO chart_gem_");
+            sql.append(names.get(i)).append(" (date, avg_price, trade_count) VALUES (?, ?, ?)");
+            entityManager
+                    .createNativeQuery(sql.toString())
+                    .setParameter(1, list.get(1).get("Date"))
+                    .setParameter(2, list.get(1).get("AvgPrice"))
+                    .setParameter(3, list.get(1).get("TradeCount"))
+                    .executeUpdate();
+
+
+        }
+    }
 }

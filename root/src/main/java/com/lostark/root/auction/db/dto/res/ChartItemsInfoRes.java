@@ -23,7 +23,7 @@ public class ChartItemsInfoRes {
     private List<Stat> stats;
 
     //골두꺼비 이벤트 까지만 사용
-    private GoldoEvent goldoEvent;
+    //private GoldoEvent goldoEvent;
 
     @Getter
     @Builder
@@ -46,7 +46,7 @@ public class ChartItemsInfoRes {
         private double avgPrice;
     }
 
-    public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl, GoldoEvent goldoEvent) {
+    public static ChartItemsInfoRes fromEntity(List<ChartItemsEntity> entityList, String name, int currentMinPrice, int recentPrice, String iconUrl) {
         List<Stat> list = entityList.stream()
                 .filter(Objects::nonNull)
                 .map(entity -> Stat.builder()
@@ -61,7 +61,7 @@ public class ChartItemsInfoRes {
                 .currentMinPrice(currentMinPrice)
                 .recentPrice(recentPrice)
                 .stats(list)
-                .goldoEvent(goldoEvent)
+                //.goldoEvent(goldoEvent)
                 .build();
     }
 }
