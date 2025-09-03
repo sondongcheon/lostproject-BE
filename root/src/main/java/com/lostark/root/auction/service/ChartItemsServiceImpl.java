@@ -110,7 +110,7 @@ public class ChartItemsServiceImpl implements ChartItemsService {
 
                 for(Map<String, Object> items : itemsList ) {
                     if ((int) items.get("Id") == itemsData[i].getId()) {
-                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
+                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString().replaceAll("유물 ", ""), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
                         //                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon"), goldoEvent));
                         break searchCurrent;
                     }
