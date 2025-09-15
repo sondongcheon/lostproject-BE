@@ -1,6 +1,7 @@
 package com.lostark.root.auction.service;
 
 import com.lostark.root.auction.db.dto.ItemsEnum.Book;
+import com.lostark.root.auction.db.dto.ItemsEnum.Gem;
 import com.lostark.root.auction.db.dto.ItemsEnum.ItemsData;
 import com.lostark.root.auction.db.dto.ItemsEnum.Upgrade;
 import com.lostark.root.auction.db.dto.req.APIreq.ApiBookReq;
@@ -110,7 +111,8 @@ public class ChartItemsServiceImpl implements ChartItemsService {
 
                 for(Map<String, Object> items : itemsList ) {
                     if ((int) items.get("Id") == itemsData[i].getId()) {
-                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString().replaceAll("유물 ", ""), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
+
+                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, itemsData[i].getVisualName(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
                         //                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon"), goldoEvent));
                         break searchCurrent;
                     }
@@ -129,6 +131,9 @@ public class ChartItemsServiceImpl implements ChartItemsService {
             }
             case 2 -> {
                 return Upgrade.values();
+            }
+            case 3 -> {
+                return Gem.values();
             }
             default -> throw new CustomException(ErrorCode.NONE_ITEM_TYPE);
         }
