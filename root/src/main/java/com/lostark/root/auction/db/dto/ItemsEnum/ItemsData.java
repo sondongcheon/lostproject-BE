@@ -8,4 +8,5 @@ public interface ItemsData {
     int getItemTier();
     String getItemGrade();
     String getItemName();
+    String getVisualName();
 }
