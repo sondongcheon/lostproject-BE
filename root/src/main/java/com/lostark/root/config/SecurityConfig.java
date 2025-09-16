@@ -80,6 +80,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/chart/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/chart/**").permitAll()
 
+                        //simulator
+                        .requestMatchers(HttpMethod.GET, "/simulator/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/simulator/**").permitAll()
+
 
                         .requestMatchers("/*", "/**").denyAll()
                         .anyRequest().authenticated());
