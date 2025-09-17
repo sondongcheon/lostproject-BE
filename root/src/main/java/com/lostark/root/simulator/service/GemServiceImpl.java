@@ -25,13 +25,16 @@ public class GemServiceImpl implements GemService {
         Options option1 = selectOption(OptionNameEnum.values()[type], 0);
         Options option2 = selectOption(OptionNameEnum.values()[type], option1.getNumber());
 
+        GemStateDto state = GemStateDto.fromReq(gemProcessReq);
         int[] effectNum = new int[4];
         String[] effectName = new String[4];
         for (int i = 0; i < 4; i++) {
-            EffectEnum effectEnum = processResult(gemProcessReq).orElse(null);
+            EffectEnum effectEnum = processChoiceList(state).orElse(null);
             assert effectEnum != null;
+            state.addPickedNums(effectEnum.getNum());
             effectNum[i] = effectEnum.getNum();
             effectName[i] = effectEnum.getName();
+
         }
         //return new String[] { "의지력 효율", "질서 포인트", option1.getName(), option2.getName()};
         return GemBasicRes.builder()
@@ -42,12 +45,13 @@ public class GemServiceImpl implements GemService {
                 .remainingProcessCount(9)
                 .effectNum(effectNum)
                 .effectName(effectName)
+                .rerollChoiceList(1)
                 .build();
     }
 
+    //가공 선택지 뽑기
     @Override
-    public Optional<EffectEnum> processResult(GemProcessReq gemProcessReq) {
-        GemStateDto state = GemStateDto.fromReq(gemProcessReq);
+    public Optional<EffectEnum> processChoiceList(GemStateDto state) {
         // 1) 유효 가중치 계산
         List<EffectEnum> all = Arrays.asList(EffectEnum.values());
         double total = all.stream().mapToDouble(e -> e.effectiveWeight(state)).sum();
@@ -63,6 +67,42 @@ public class GemServiceImpl implements GemService {
             if (r <= acc) return Optional.of(e);
         }
         return Optional.empty();
+    }
+
+    //가공하기
+    @Override
+    public GemBasicRes processGem(GemProcessReq gemProcessReq, int type) {
+        int r = (int) (Math.random() * 4);
+        log.info("choice num : {}", r);
+        GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
+        int[] OptionNum = new int[] { gemProcessReq.getOptionNum()[0], gemProcessReq.getOptionNum()[1], 0, 0};
+        String[] OptionName = new String[] { gemProcessReq.getOptionName()[0], gemProcessReq.getOptionName()[1], "의지력 효율", "질서 포인트"};
+        log.info("choice EffectNum : {}", gemProcessReq.getEffectNum()[r]);
+        if( gemProcessReq.getEffectNum()[r] != 21 && gemProcessReq.getEffectNum()[r] != 22) {
+            dto.processResult(gemProcessReq.getEffectNum()[r]);
+        } else if (gemProcessReq.getEffectNum()[r] == 21) {
+            Options newOption = selectOption(OptionNameEnum.values()[type], gemProcessReq.getOptionNum()[1]);
+            OptionNum[0] = newOption.getNumber();
+            OptionName[0] = newOption.getName();
+        } else if (gemProcessReq.getEffectNum()[r] == 22) {
+            Options newOption = selectOption(OptionNameEnum.values()[type], gemProcessReq.getOptionNum()[2]);
+            OptionNum[1] = newOption.getNumber();
+            OptionName[1] = newOption.getName();
+        }
+
+        int[] effectNum = new int[4];
+        String[] effectName = new String[4];
+        dto.pickedNums.clear();
+        for (int i = 0; i < 4; i++) {
+            EffectEnum effectEnum = processChoiceList(dto).orElse(null);
+            assert effectEnum != null;
+            dto.addPickedNums(effectEnum.getNum());
+            effectNum[i] = effectEnum.getNum();
+            effectName[i] = effectEnum.getName();
+        }
+
+        return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName);
+
     }
 
     // (참고) 디버깅용: 현재 상태에서의 유효 가중치 목록
@@ -102,4 +142,7 @@ public class GemServiceImpl implements GemService {
                 new Options(4, nameEnum.getOption4()))
         );
     }
+
+
+
 }

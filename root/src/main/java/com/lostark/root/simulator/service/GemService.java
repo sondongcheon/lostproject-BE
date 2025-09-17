@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface GemService {
 
     public GemBasicRes getBasicInfo(GemProcessReq gemProcessReq, int type);
-    public Optional<EffectEnum> processResult(GemProcessReq gemProcessReq);
+    public Optional<EffectEnum> processChoiceList(GemStateDto state);
+    public GemBasicRes processGem(GemProcessReq gemProcessReq, int type);
 }

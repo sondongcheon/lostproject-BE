@@ -68,6 +68,7 @@ public enum EffectEnum {
 
     /** 현재 상태에서 등장 가능한가? (미등장 조건 반영) */
     public boolean isAvailable(GemStateDto s) {
+        if (s.pickedNums.contains(this.num)) return false;
         return !blockCondition.test(s);
     }
 

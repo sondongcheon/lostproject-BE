@@ -10,5 +10,8 @@ public class GemProcessReq {
     private int[] optionState;
     private int costExtraPercent;
     private int remainingProcessCount;
+    private int[] effectNum;
+    private String[] effectName;
+    private int rerollChoiceList;
 
 }
