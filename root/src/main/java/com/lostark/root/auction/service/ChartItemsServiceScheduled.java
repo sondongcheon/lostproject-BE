@@ -84,7 +84,7 @@ public class ChartItemsServiceScheduled {
         }
     }
 
-    @Scheduled(cron = "${schedule.upgrade.cron}")
+    @Scheduled(cron = "${schedule.gem.cron}")
     @Transactional
     protected void saveGemResult() throws InterruptedException {
 
