@@ -3,7 +3,6 @@ package com.lostark.root.simulator.db.dto;
 import com.lostark.root.simulator.db.dto.req.GemProcessReq;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +35,10 @@ public class GemStateDto {
 
     public void addPickedNums (int num) {
         this.pickedNums.add(num);
+    }
+
+    public void processCountMinus() {
+        this.remainingProcessCount--;
     }
 
     public void processResult(int selectNum) {
