@@ -1,5 +1,7 @@
 package com.lostark.root.simulator.service;
 
+import com.lostark.root.exception.CustomException;
+import com.lostark.root.exception.ErrorCode;
 import com.lostark.root.simulator.db.dto.GemEnums.EffectEnum;
 import com.lostark.root.simulator.db.dto.GemEnums.OptionNameEnum;
 import com.lostark.root.simulator.db.dto.GemStateDto;
@@ -21,7 +23,7 @@ public class GemServiceImpl implements GemService {
 
 
     @Override
-    public GemBasicRes getBasicInfo(GemProcessReq gemProcessReq, int type) {
+    public GemBasicRes getBasicInfo(GemProcessReq gemProcessReq, int type, int grade) {
         Options option1 = selectOption(OptionNameEnum.values()[type], 0);
         Options option2 = selectOption(OptionNameEnum.values()[type], option1.getNumber());
 
@@ -42,32 +44,15 @@ public class GemServiceImpl implements GemService {
                 .optionName(new String[] { option1.getName(), option2.getName(), "의지력 효율", "질서 포인트"})
                 .optionState(new int[] { 1, 1, 1, 1})
                 .costExtraPercent(0)
-                .remainingProcessCount(9)
+                .remainingProcessCount(grade)
                 .effectNum(effectNum)
                 .effectName(effectName)
                 .rerollChoiceList(1)
+                .choiceEffect("가공 이전")
                 .build();
     }
 
-    //가공 선택지 뽑기
-    @Override
-    public Optional<EffectEnum> processChoiceList(GemStateDto state) {
-        // 1) 유효 가중치 계산
-        List<EffectEnum> all = Arrays.asList(EffectEnum.values());
-        double total = all.stream().mapToDouble(e -> e.effectiveWeight(state)).sum();
-        if (total <= 0) return Optional.empty();
 
-        // 2) 정규화 후 룰렛 휠
-        double r = Math.random() * total;
-        double acc = 0.0;
-        for (EffectEnum e : all) {
-            double w = e.effectiveWeight(state);
-            if (w <= 0) continue;
-            acc += w;
-            if (r <= acc) return Optional.of(e);
-        }
-        return Optional.empty();
-    }
 
     //가공하기
     @Override
@@ -75,6 +60,7 @@ public class GemServiceImpl implements GemService {
         int r = (int) (Math.random() * 4);
         log.info("choice num : {}", r);
         GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
+        dto.processCountMinus();
         int[] OptionNum = new int[] { gemProcessReq.getOptionNum()[0], gemProcessReq.getOptionNum()[1], 0, 0};
         String[] OptionName = new String[] { gemProcessReq.getOptionName()[0], gemProcessReq.getOptionName()[1], "의지력 효율", "질서 포인트"};
         log.info("choice EffectNum : {}", gemProcessReq.getEffectNum()[r]);
@@ -101,8 +87,27 @@ public class GemServiceImpl implements GemService {
             effectName[i] = effectEnum.getName();
         }
 
-        return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName);
+        return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName, gemProcessReq.getEffectName()[r]);
 
+    }
+
+    @Override
+    public GemBasicRes reRollChoiceList(GemProcessReq gemProcessReq) {
+        if(gemProcessReq.getRemainingProcessCount() == 0)  throw new CustomException(ErrorCode.SIMULATOR_ERROR);
+        GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
+        int[] effectNum = new int[4];
+        String[] effectName = new String[4];
+        dto.pickedNums.clear();
+        for (int i = 0; i < 4; i++) {
+            EffectEnum effectEnum = processChoiceList(dto).orElse(null);
+            assert effectEnum != null;
+            dto.addPickedNums(effectEnum.getNum());
+            effectNum[i] = effectEnum.getNum();
+            effectName[i] = effectEnum.getName();
+
+        }
+        return GemBasicRes.forReRollEffect(effectNum, effectName);
+        //return GemBasicRes.dtoToProcessRes(dto, gemProcessReq.getOptionNum(), gemProcessReq.getOptionName(), effectNum, effectName, null);
     }
 
     // (참고) 디버깅용: 현재 상태에서의 유효 가중치 목록
@@ -111,6 +116,7 @@ public class GemServiceImpl implements GemService {
                 .collect(Collectors.toMap(e -> e, e -> e.effectiveWeight(s)));
     }
 
+    //가공 선택지 뽑기
     private Options selectOption(OptionNameEnum nameEnum, int isAvailableNum) {
         List<Options> OptionList = fromNameEnum(nameEnum);
 
@@ -121,6 +127,25 @@ public class GemServiceImpl implements GemService {
 
         return OptionList.get(rand);
 
+    }
+
+    //가공 효과 뽑기
+    private Optional<EffectEnum> processChoiceList(GemStateDto state) {
+        // 1) 유효 가중치 계산
+        List<EffectEnum> all = Arrays.asList(EffectEnum.values());
+        double total = all.stream().mapToDouble(e -> e.effectiveWeight(state)).sum();
+        if (total <= 0) return Optional.empty();
+
+        // 2) 정규화 후 룰렛 휠
+        double r = Math.random() * total;
+        double acc = 0.0;
+        for (EffectEnum e : all) {
+            double w = e.effectiveWeight(state);
+            if (w <= 0) continue;
+            acc += w;
+            if (r <= acc) return Optional.of(e);
+        }
+        return Optional.empty();
     }
 
 

@@ -49,16 +49,17 @@ public enum EffectEnum {
     // 미등장 조건 : 가공 비용 추가 비율이 +100%에 도달한 경우
     // 미등장 조건 : 가공 가능 횟수가 1회 남은 경우
     COST_PLUS_100 (23, "가공 비용 +100% 증가", 0.017500,
-            s -> !(s.remainingProcessCount == 1) || s.costExtraPercent >= 100),
+            s -> s.remainingProcessCount == 1 || s.costExtraPercent == 100),
     COST_MINUS_100(24, "가공 비용 -100% 감소", 0.017500,
-            s -> !(s.remainingProcessCount == 1) || s.costExtraPercent <= -100),
+            //s -> !(s.remainingProcessCount == 1) || s.costExtraPercent <= -100),
+            s -> s.remainingProcessCount == 1),
 
     STATE_HOLD    (25, "가공 상태 유지",     0.017500, s -> false), // 미등장 조건 : 없음
 
     SEE_OTHER_PLUS_1(26, "다른 항목 보기 +1회 증가", 0.025000,
-            s -> s.remainingProcessCount != 1), // 미등장 조건 : 가공 가능 횟수가 1회 남은 경우
+            s -> s.remainingProcessCount == 1), // 미등장 조건 : 가공 가능 횟수가 1회 남은 경우
     SEE_OTHER_PLUS_2(27, "다른 항목 보기 +2회 증가", 0.007500,
-            s -> s.remainingProcessCount != 1); // 미등장 조건 : 가공 가능 횟수가 1회 남은 경우
+            s -> s.remainingProcessCount == 1); // 미등장 조건 : 가공 가능 횟수가 1회 남은 경우
 
 
     private final int num;

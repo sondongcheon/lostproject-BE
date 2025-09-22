@@ -29,19 +29,19 @@ server:
 
 schedule:
   chart:
-    cron: 0 0 * * 1 *
+    cron: 0 0 * * * *
     use: true
   book:
-    cron: 0 15 0 * 1 *
+    cron: 0 15 0 * * *
     use: true
   upgrade:
-    cron: 0 20 0 * 1 *
+    cron: 0 20 0 * * *
     use: true
   jewel:
-    cron: 0 3 * * 1 *
+    cron: 0 3 * * * *
     use: true
   gem:
-    cron: 0 8 0 * 1 *
+    cron: 0 8 0 * * *
     use: true
 
 api:

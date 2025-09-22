@@ -27,14 +27,20 @@ public class GemController {
     private final GemService gemService;
 
     @PostMapping("/{type}")
-    public Response<?> getGemMain(@PathVariable(value = "type") int type, @RequestBody GemProcessReq gemProcessReq) {
+    public Response<?> getGemMain(@PathVariable(value = "type") int type, @RequestBody GemProcessReq gemProcessReq, @RequestParam (value = "grade") int grade) {
         log.info("Gem Simulator");
-        return Response.of(HttpStatus.OK, "gd", gemService.getBasicInfo(gemProcessReq, type));
+        return Response.of(HttpStatus.OK, "gd", gemService.getBasicInfo(gemProcessReq, type, grade));
     }
 
     @PostMapping("/process/{type}")
     public Response<?> getProcessResult(@PathVariable(value = "type") int type, @RequestBody GemProcessReq gemProcessReq) {
         log.info("Gem Process");
         return Response.of(HttpStatus.OK, "gd", gemService.processGem(gemProcessReq, type));
+    }
+
+    @PostMapping("/reroll")
+    public Response<?> reRollChoiceList(@RequestBody GemProcessReq gemProcessReq) {
+        log.info("Gem reRoll");
+        return Response.of(HttpStatus.OK, "gd", gemService.reRollChoiceList(gemProcessReq));
     }
 }
