@@ -1,8 +1,12 @@
 package com.lostark.root.simulator.db.dto.res;
 
+import com.lostark.root.simulator.db.dto.EffectDto;
 import com.lostark.root.simulator.db.dto.GemStateDto;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Builder
@@ -17,9 +21,10 @@ public class GemBasicRes {
     private String[] effectName;
     private int rerollChoiceList;
     private String choiceEffect;
+    private List<EffectDto> weight;
 
 
-    static public GemBasicRes dtoToProcessRes(GemStateDto dto, int[] optionNum, String[] optionName, int[] effectNum, String[] effectName, String choiceEffect) {
+    static public GemBasicRes dtoToProcessRes(GemStateDto dto, int[] optionNum, String[] optionName, int[] effectNum, String[] effectName, String choiceEffect, List<EffectDto>  weight) {
         return GemBasicRes.builder()
                 .optionNum(optionNum)
                 .optionName(optionName)
@@ -30,13 +35,15 @@ public class GemBasicRes {
                 .effectName(effectName)
                 .rerollChoiceList(dto.getRerollChoiceList())
                 .choiceEffect(choiceEffect)
+                .weight(weight)
                 .build();
     }
 
-    static public GemBasicRes forReRollEffect(int[] effectNum, String[] effectName) {
+    static public GemBasicRes forReRollEffect(int[] effectNum, String[] effectName, List<EffectDto> weight) {
         return GemBasicRes.builder()
                 .effectNum(effectNum)
                 .effectName(effectName)
+                .weight(weight)
                 .build();
     }
 }

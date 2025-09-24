@@ -2,6 +2,7 @@ package com.lostark.root.simulator.service;
 
 import com.lostark.root.exception.CustomException;
 import com.lostark.root.exception.ErrorCode;
+import com.lostark.root.simulator.db.dto.EffectDto;
 import com.lostark.root.simulator.db.dto.GemEnums.EffectEnum;
 import com.lostark.root.simulator.db.dto.GemEnums.OptionNameEnum;
 import com.lostark.root.simulator.db.dto.GemStateDto;
@@ -38,6 +39,11 @@ public class GemServiceImpl implements GemService {
             effectName[i] = effectEnum.getName();
 
         }
+
+        List<EffectEnum> all = Arrays.asList(EffectEnum.values());
+        List<Double> weight = all.stream()
+                .map(e -> e.effectiveWeight(state))
+                .toList();
         //return new String[] { "의지력 효율", "질서 포인트", option1.getName(), option2.getName()};
         return GemBasicRes.builder()
                 .optionNum(new int[] {option1.getNumber(), option2.getNumber(), 0, 0})
@@ -49,6 +55,7 @@ public class GemServiceImpl implements GemService {
                 .effectName(effectName)
                 .rerollChoiceList(1)
                 .choiceEffect("가공 이전")
+                .weight(getWeight(state))
                 .build();
     }
 
@@ -87,7 +94,7 @@ public class GemServiceImpl implements GemService {
             effectName[i] = effectEnum.getName();
         }
 
-        return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName, gemProcessReq.getEffectName()[r]);
+        return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName, gemProcessReq.getEffectName()[r], getWeight(dto));
 
     }
 
@@ -106,8 +113,16 @@ public class GemServiceImpl implements GemService {
             effectName[i] = effectEnum.getName();
 
         }
-        return GemBasicRes.forReRollEffect(effectNum, effectName);
+
+        return GemBasicRes.forReRollEffect(effectNum, effectName, getWeight(dto));
         //return GemBasicRes.dtoToProcessRes(dto, gemProcessReq.getOptionNum(), gemProcessReq.getOptionName(), effectNum, effectName, null);
+    }
+
+    @Override
+    public GemBasicRes checkWeight(GemProcessReq gemProcessReq) {
+        GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
+        for( int a : gemProcessReq.getEffectNum()) dto.pickedNums.add(a);
+        return GemBasicRes.forReRollEffect(null, null, getWeight(dto));
     }
 
     // (참고) 디버깅용: 현재 상태에서의 유효 가중치 목록
@@ -166,6 +181,20 @@ public class GemServiceImpl implements GemService {
                 new Options(3, nameEnum.getOption3()),
                 new Options(4, nameEnum.getOption4()))
         );
+    }
+
+    private List<EffectDto> getWeight(GemStateDto dto) {
+        List<EffectEnum> all = Arrays.asList(EffectEnum.values());
+
+        double total = all.stream().mapToDouble(e -> e.effectiveWeight(dto)).sum();
+        log.info("total : , {}", total);
+
+        return all.stream().filter(e -> e.effectiveWeight(dto) != 0)
+                .map(e -> new EffectDto(
+                        e.getNum(),
+                        e.getName(),              // key: Enum의 name
+                        e.effectiveWeight(dto) / total * 100) // value: 계산된 값
+                ).toList();
     }
 
 

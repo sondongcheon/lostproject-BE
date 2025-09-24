@@ -1,6 +1,7 @@
 package com.lostark.root.simulator.controller;
 
 import com.lostark.root.common.Response;
+import com.lostark.root.common.db.repository.LogCountRepository;
 import com.lostark.root.simulator.db.dto.GemStateDto;
 import com.lostark.root.simulator.db.dto.req.GemProcessReq;
 import com.lostark.root.simulator.service.GemService;
@@ -25,16 +26,19 @@ public class GemController {
      */
 
     private final GemService gemService;
+    private final LogCountRepository logCountRepository;
 
     @PostMapping("/{type}")
     public Response<?> getGemMain(@PathVariable(value = "type") int type, @RequestBody GemProcessReq gemProcessReq, @RequestParam (value = "grade") int grade) {
         log.info("Gem Simulator");
+        logCountRepository.incrementCountByName("gemSimulator");
         return Response.of(HttpStatus.OK, "gd", gemService.getBasicInfo(gemProcessReq, type, grade));
     }
 
     @PostMapping("/process/{type}")
     public Response<?> getProcessResult(@PathVariable(value = "type") int type, @RequestBody GemProcessReq gemProcessReq) {
         log.info("Gem Process");
+        logCountRepository.incrementCountByName("useGemSimulator");
         return Response.of(HttpStatus.OK, "gd", gemService.processGem(gemProcessReq, type));
     }
 
@@ -42,5 +46,10 @@ public class GemController {
     public Response<?> reRollChoiceList(@RequestBody GemProcessReq gemProcessReq) {
         log.info("Gem reRoll");
         return Response.of(HttpStatus.OK, "gd", gemService.reRollChoiceList(gemProcessReq));
+    }
+
+    @PostMapping("/recheck")
+    public Response<?> checkWeight(@RequestBody GemProcessReq gemProcessReq) {
+        return Response.of(HttpStatus.OK, "gd", gemService.checkWeight(gemProcessReq));
     }
 }
