@@ -10,4 +10,5 @@ public interface GemService {
     public GemBasicRes getBasicInfo(GemProcessReq gemProcessReq, int type, int grade);
     public GemBasicRes processGem(GemProcessReq gemProcessReq, int type);
     public GemBasicRes reRollChoiceList(GemProcessReq gemProcessReq);
+    public GemBasicRes checkWeight(GemProcessReq gemProcessReq);
 }
