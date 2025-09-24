@@ -28,13 +28,13 @@ public class GemServiceImpl implements GemService {
         Options option1 = selectOption(OptionNameEnum.values()[type], 0);
         Options option2 = selectOption(OptionNameEnum.values()[type], option1.getNumber());
 
-        GemStateDto state = GemStateDto.fromReq(gemProcessReq);
+        GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
         int[] effectNum = new int[4];
         String[] effectName = new String[4];
         for (int i = 0; i < 4; i++) {
-            EffectEnum effectEnum = processChoiceList(state).orElse(null);
+            EffectEnum effectEnum = processChoiceList(dto).orElse(null);
             assert effectEnum != null;
-            state.addPickedNums(effectEnum.getNum());
+            dto.addPickedNums(effectEnum.getNum());
             effectNum[i] = effectEnum.getNum();
             effectName[i] = effectEnum.getName();
 
@@ -42,8 +42,9 @@ public class GemServiceImpl implements GemService {
 
         List<EffectEnum> all = Arrays.asList(EffectEnum.values());
         List<Double> weight = all.stream()
-                .map(e -> e.effectiveWeight(state))
+                .map(e -> e.effectiveWeight(dto))
                 .toList();
+        dto.pickedNums.clear();
         //return new String[] { "의지력 효율", "질서 포인트", option1.getName(), option2.getName()};
         return GemBasicRes.builder()
                 .optionNum(new int[] {option1.getNumber(), option2.getNumber(), 0, 0})
@@ -55,7 +56,7 @@ public class GemServiceImpl implements GemService {
                 .effectName(effectName)
                 .rerollChoiceList(1)
                 .choiceEffect("가공 이전")
-                .weight(getWeight(state))
+                .weight(getWeight(dto))
                 .build();
     }
 
@@ -93,7 +94,7 @@ public class GemServiceImpl implements GemService {
             effectNum[i] = effectEnum.getNum();
             effectName[i] = effectEnum.getName();
         }
-
+        dto.pickedNums.clear();
         return GemBasicRes.dtoToProcessRes(dto, OptionNum, OptionName, effectNum, effectName, gemProcessReq.getEffectName()[r], getWeight(dto));
 
     }
@@ -113,7 +114,7 @@ public class GemServiceImpl implements GemService {
             effectName[i] = effectEnum.getName();
 
         }
-
+        dto.pickedNums.clear();
         return GemBasicRes.forReRollEffect(effectNum, effectName, getWeight(dto));
         //return GemBasicRes.dtoToProcessRes(dto, gemProcessReq.getOptionNum(), gemProcessReq.getOptionName(), effectNum, effectName, null);
     }
@@ -121,7 +122,6 @@ public class GemServiceImpl implements GemService {
     @Override
     public GemBasicRes checkWeight(GemProcessReq gemProcessReq) {
         GemStateDto dto = GemStateDto.fromReq(gemProcessReq);
-        for( int a : gemProcessReq.getEffectNum()) dto.pickedNums.add(a);
         return GemBasicRes.forReRollEffect(null, null, getWeight(dto));
     }
 
