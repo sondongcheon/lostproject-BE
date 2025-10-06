@@ -3,8 +3,8 @@ spring:
     name: root
 
   datasource:
-    url: ENC(6HdfE7MiNEDeDAQFxc9uXHr4wUvu6e5Hv0As1bL8/A+adPWS0DprN4X9Lhc8whHuLcjR/pR/za3CkoVsSdvysUj62GhFdmyD8zKxEaWeq6KPMi5arc5hTA==)
-    username: ENC(M6dbJfAs8Z+1AT+4hN57O2txkg2eD09e)
+    url: ENC(xuMT3QjPMbBRvhic+tlqjbkGhXZA9962Jgux1h8fArYzb7xjWMcnxuflGLGab04a)
+    username: ENC(AWlKQv+7LcqS0gZYzuLekw==)
     password: ENC(q10RQ+1XLOoorSTFbdfA0t3DFU+KhcWNeZgdgFEwYlI=)
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
