@@ -66,7 +66,7 @@ public class ApiAuctionRes {
     }
 
     public double getStat(int cntCount) {
-        return Items.get(cntCount).getOptions().get(2).getValue();
+        return Items.get(cntCount).getOptions().get(4).getValue();
     }
 
     public int getCntUpgrade(int cntCount) {
