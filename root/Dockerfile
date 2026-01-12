@@ -1,4 +1,4 @@
-FROM openjdk:21
+FROM eclipse-temurin:21-jdk
 
 # JAR 파일의 경로를 ARG로 선언
 ARG JAR_FILE=build/libs/root-0.0.1-SNAPSHOT.jar
