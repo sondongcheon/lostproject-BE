@@ -251,6 +251,10 @@ public class AuctionServiceImpl implements AuctionService {
         return (currentStat - stat.getMinValue()) / (stat.getMaxValue() - stat.getMinValue()) * 100 >= per;
     }
 
+    /* 같은 옵션을 두개 검색했을 때 중복을 체크하는 필터
+     * EX) 귀걸이1, 귀걸이2를 모두 [상, 중] 으로 검색 했을때 필터가 없다면 같은 결과가 나옴, 따라서 귀걸이2의 결과를 만들때 귀걸이1에서 준 결과와 같은지 체크
+     *     체크의 기준은 등록 만료시간이 같은지 체크 (ms 단위로 이뤄지기 때문에 우연의 확률이 0에 수렴)
+     */
     private int accDuplicateCheck (SearchResultRes[] searchResultRes, ApiAuctionRes.Item filterRes, int i) {
         Map<Integer, Integer> indexMap = Map.of(
                 1, 2,
@@ -267,6 +271,9 @@ public class AuctionServiceImpl implements AuctionService {
         return 0;
     }
 
+    /* 외부 API 요청용 메소드, 공용 요청 API가 만들어지기 이전에 작성되어 그대로 유지
+     * 악세 검색 결과를 반환
+     */
     private ApiAuctionRes requestAuction(ApiAuctionReq apiAuctionReq, String key) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -284,6 +291,9 @@ public class AuctionServiceImpl implements AuctionService {
         }
     }
 
+    /* 외부 API 요청용 메소드, 공용 요청 API가 만들어지기 이전에 작성되어 그대로 유지
+     * 착용 장비 결과를 반환
+     */
     private ApiEquipmentRes requestEquipment(String key, String name) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -306,6 +316,9 @@ public class AuctionServiceImpl implements AuctionService {
         }
     }
 
+    /* 외부 API 에러 상황일 경우 로그와 판단을 위해 사용
+     * restTemplate 통해 받은 exception -> 커스텀으로 반환
+     */
     private CustomException ApiErrorHandle(HttpStatusCodeException exception) {
         int statusCode = exception.getStatusCode().value();
         log.error(exception.getMessage());
@@ -396,6 +409,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     // [0,1] , new, new, 0, 2, 2, new
+    // 특수추적용 조합 알고리즘
     private void perm(int[] arr, int[] output, boolean[] visited, int depth, int n, int r, List<int[]> result) {
         if (depth == r) {
             result.add(Arrays.copyOf(output, r));
@@ -412,6 +426,7 @@ public class AuctionServiceImpl implements AuctionService {
         }
     }
 
+    // 특수추척용
     private static List<int[]> generateCombinations(int[] example, boolean[] isExampleBool) {
         List<int[]> result = new ArrayList<>();
         generateCombinationsRecursive(example, isExampleBool, new ArrayList<>(), 0, result);
@@ -419,6 +434,7 @@ public class AuctionServiceImpl implements AuctionService {
         return result;
     }
 
+    // 특수추척용
     private static void generateCombinationsRecursive(int[] example, boolean[] isExampleBool, List<Integer> current, int index, List<int[]> result) {
         // 모든 자리를 처리한 경우
         if (index == example.length) {
