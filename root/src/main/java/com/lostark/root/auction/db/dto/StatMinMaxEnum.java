@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum StatMinMaxEnum {
 
+    /*  스텟 예상 범위 계산용
+     *  경우의 수에 따른 최소치와 최대치
+     */
+
     NECK_1(200010, 1, 13035, 15714),
     NECK_2(200010, 2, 13749, 16428),
     NECK_3(200010, 3, 15178, 17857),

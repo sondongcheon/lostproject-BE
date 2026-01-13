@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OptionDisplay {
 
+    /* 공식 옵션 코드와 표기 이름 ( 전체 )
+     */
+
     ATTACK_PERCENT(45, "공격력 "),
     //ATTACK_PLUS(53, "공격력 "),
     IMPRESS_POWER(44, "낙인력"),

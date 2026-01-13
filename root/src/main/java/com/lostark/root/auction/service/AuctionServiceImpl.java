@@ -35,12 +35,15 @@ import java.util.stream.IntStream;
 @Slf4j
 public class AuctionServiceImpl implements AuctionService {
 
-    private final LogCountRepository logCountRepository;
+    private final LogCountRepository logCountRepository;    //조회수 DB 접근
     private final int defaultNumber = 999;
 
-    @Value("${api.public}")
+    @Value("${api.public}") // API 키 미입력자용 공용키 ( 사실 그냥 내 KEY, 스마게 측에서 요청횟수 500으로 늘려줫긴함 )
     private String apikey;
 
+    /* 악세서리 검색
+     * 5종류 검색 한번에 모두 가져오는 기본 기능 처리 메소드
+     */
     @Override
     public SearchFinalRes getAuctionResult(List<SelectOptionReq> selectOptionReqList, int type, String key) {
         //공용키 전환

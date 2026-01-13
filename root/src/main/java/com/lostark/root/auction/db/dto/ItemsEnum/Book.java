@@ -7,6 +7,10 @@ import lombok.Getter;
 @Getter
 public enum Book implements ItemsData {
 
+    /* 유각 아이템 코드 리스트
+     * 스케쥴링으로 정보 가져오는 용도로 주로 사용
+     */
+
     ADRENALINE("adrenaline", 65203905, "아드레날린 각인서"),
     ONEHAN("onehan", 65200505, "원한 각인서"),
     YEAHDUN("yeahdun", 65201005, "예리한 둔기 각인서"),
@@ -32,27 +36,27 @@ public enum Book implements ItemsData {
     MAXMANA("maxmana", 65201205, "최대 마나 증가 각인서"),
     JUNGGI("junggi", 65200205, "정기 흡수 각인서");
 
-    private final String name;
-    private final int id;
-    private final String visualName;
+    private final String name;          // DB table name
+    private final int id;               // 아이템 코드
+    private final String visualName;    // 표기 이름
 
     public String getTypeName() {
         return "book";
     }
 
     public int getCategoryCode() {
-        return 40000;
+        return 40000;   // 각인서 카테고리 코드
     }
 
     public int getItemTier() {
-        return 0;
+        return 0;       // 티어 미분류
     }
 
     public String getItemGrade() {
-        return "유물";
+        return "유물";    // 유각 전용이라 고정
     }
 
     public String getItemName() {
-        return "각인서";
+        return "각인서";   // 각인서 전용이라 고정
     }
 }

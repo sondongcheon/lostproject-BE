@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChartGenericEntity {
 
+    /*  악세서리 가격 정보 Entity
+     *  악세서리 Table 의 컬럼은 모두 동일하므로 여러 테이블을 Generic 사용중
+     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
