@@ -17,8 +17,13 @@ import java.util.Map;
 @Component
 public class ChartItemsServiceScheduled {
 
+    /* 주기적인(1시간) API 호출을 통해 가격정보를 SQL에 저장하는 메소드 클래스
+        Enums 구조를 도입하기 이전에 작성되어 List.of 로 사용
+     */
+
     private final EntityManager entityManager;
 
+    // 유물 각인서
     @Scheduled(cron = "${schedule.book.cron}")
     @Transactional
     protected void saveBookResult() throws InterruptedException {
@@ -52,6 +57,7 @@ public class ChartItemsServiceScheduled {
         }
     }
 
+    // 제련 재료
     @Scheduled(cron = "${schedule.upgrade.cron}")
     @Transactional
     protected void saveUpgradeResult() throws InterruptedException {
@@ -84,6 +90,7 @@ public class ChartItemsServiceScheduled {
         }
     }
 
+    // 젬
     @Scheduled(cron = "${schedule.gem.cron}")
     @Transactional
     protected void saveGemResult() throws InterruptedException {

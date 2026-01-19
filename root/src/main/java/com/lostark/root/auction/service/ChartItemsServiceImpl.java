@@ -40,27 +40,31 @@ public class ChartItemsServiceImpl implements ChartItemsService {
         ItemsData[] itemsData = selectType(type);
         List<ChartItemsInfoRes> chartItemsInfoResList = new ArrayList<>();
 
-        /* 같은 종류의 현재 가격정보를 수집 ( ex. 각인서 들, 젬 들 )
-         * currentPayList 메소드를 통해 apiResultList에 저장
-         */
         List<Map<String, Object>> apiResultList = new ArrayList<>();
+        // 현재 타입의 실시간 가격 정보를 가져옴
         currentPayList(key, itemsData[0], apiResultList);
 
-        //ChartItemsInfoRes.GoldoEvent goldoEvent = getGoldo(type, apiResultList);
-
+        // 물건마다 sql 조회 + 최종결과 만들기
         for(int i = 0; i < itemsData.length; i++){
+            //SQL문 생성, DATE(NOW()), INTERVAL 1 DAY -> 어제부터 / time -> 몇일 간격 / point -> 몇개의 결과 (limit)
             StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
 
             sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
+                    // table 이름을 완성하기 위한 append, itemsData가 interface화 되어있어 get 메소드가 자연스럽게 연결되는 구조
                     .append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName())
                     .append(" ch ON DATE(ch.date) = ds.target_date ORDER BY ds.target_date ASC");
 
-
-//            StringBuilder sql = new StringBuilder("(SELECT * FROM lostDB.chart_");
-//            sql.append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName()).append(" order by date desc limit ").append(10).append(") order by date asc");
             List<ChartItemsEntity> result = entityManager.createNativeQuery(sql.toString(), ChartItemsEntity.class).getResultList();
             entityManager.clear();
 
+            /* 반복문 설명, 현재 i 순서에 맞는 조회결과와 i 순서에 해당하는 물건의 실시간 결과를 결합하여 최종 결과를 만들어냄 ChartItemsInfoRes.fromEntity 메소드 참조
+               현재 apiResultList에는 '각인서'로 검색한 api 결과들이 들어있음, LIST인 이유는 각인서로 검색한 결과 1페이지, 2페이지 ... 이런 결과들을 다 넣었기 때문 (api 호출을 최소화 하기위한 구조)
+               searchCurrent : for(Map<String, Object> apiResult : apiResultList )는 각 페이지를 꺼냄
+
+               for(Map<String, Object> items : itemsList ) {
+                    if ((int) items.get("Id") == itemsData[i].getId())는 꺼낸 페이지에서 지금 순서에 맞는 물건을 찾아서 맞으면 메소드를 시작, 찾았으니 break
+               최초의 for문으로 돌아가서 다음 물건의 sql 조회부터 다시
+             */
             searchCurrent : for(Map<String, Object> apiResult : apiResultList ) {
                 List<Map<String, Object>> itemsList = (List<Map<String, Object>>) apiResult.get("Items");
 
@@ -68,7 +72,6 @@ public class ChartItemsServiceImpl implements ChartItemsService {
                     if ((int) items.get("Id") == itemsData[i].getId()) {
 
                         chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, itemsData[i].getVisualName(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
-                        //                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon"), goldoEvent));
                         break searchCurrent;
                     }
                 }
@@ -97,6 +100,9 @@ public class ChartItemsServiceImpl implements ChartItemsService {
         }
     }
 
+    /* 같은 종류의 현재 가격정보를 수집 ( ex. 각인서 들, 젬 들 )
+     * currentPayList 메소드를 통해 apiResultList에 저장
+     */
     private void currentPayList(String key, ItemsData itemsData, List<Map<String, Object>> apiResultList) {
         int k = 1;
         while(true) {

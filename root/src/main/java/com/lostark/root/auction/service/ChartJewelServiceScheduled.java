@@ -17,6 +17,10 @@ import java.util.Map;
 @Component
 public class ChartJewelServiceScheduled {
 
+     /* 주기적인(1시간) API 호출을 통해 가격정보를 SQL에 저장하는 메소드 클래스
+        Enums 구조를 도입하기 이전에 작성되어 List.of 로 사용
+     */
+
     private final EntityManager entityManager;
 
     @Scheduled(cron = "${schedule.jewel.cron}")
