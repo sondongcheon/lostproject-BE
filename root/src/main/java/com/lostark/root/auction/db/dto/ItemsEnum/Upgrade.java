@@ -7,6 +7,10 @@ import lombok.Getter;
 @Getter
 public enum Upgrade implements ItemsData{
 
+    /* 제련용 아이템 코드 리스트
+     * 스케쥴링으로 정보 가져오는 용도로 주로 사용
+     */
+
     AVIBOS("avibos", 6861012, "아비도스 융화 재료"),
     UNPASUK("unpasuk", 66102006, "운명의 파괴석"),
     UNSUSUK("unsusuk", 66102106, "운명의 수호석"),
@@ -23,18 +27,20 @@ public enum Upgrade implements ItemsData{
     YAGUMSCROLL_2("yagumscroll_2", 66112713, "장인의 야금술 : 2단계"),
     JAEBONGSCROLL_2("jaebongscroll_2", 66112714, "장인의 재봉술 : 2단계");
 
-    private final String name;
-    private final int id;
-    private final String visualName;
+    private final String name;          // DB table name
+    private final int id;               // 아이템 코드
+    private final String visualName;    // 표기 이름
 
     public String getTypeName() {
         return "upgrade";
     }
 
+    // 50000 -> 캐릭터 강화 관련
     public int getCategoryCode() {
         return 50000;
     }
 
+    // 4티어 재료들만 다루기 때문에 4고정
     public int getItemTier() {
         return 4;
     }
@@ -43,6 +49,7 @@ public enum Upgrade implements ItemsData{
         return "";
     }
 
+    // id, 카테고리로 분류
     public String getItemName() {
         return "";
     }

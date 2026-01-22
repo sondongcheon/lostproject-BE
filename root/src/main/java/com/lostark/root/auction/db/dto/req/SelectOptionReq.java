@@ -9,6 +9,10 @@ import java.util.List;
 @Slf4j
 public class SelectOptionReq {
 
+    /* 클라이언트에서 선택한 옵션들을 받을 Request DTO
+     *
+     */
+
     private int tier;
     private int quality;
     private int statPer;
@@ -17,12 +21,13 @@ public class SelectOptionReq {
     private int categoryCode;
     private String itemGrade;
     private int pageNo;
+    // 자체 필터 시 OpenAPI Response 의 몇페이지 까지 사용했는지 기록용
     // 해당 페이지의 필터했던 매물이 어디까지인지
     private int numberCount;
     private List<EtcOption> etcOptionList;
 
     @Getter
-    public static class EtcOption {
+    public static class EtcOption { //연마 옵션 종류, 값
         private int option;
         private int value;
     }
@@ -31,6 +36,7 @@ public class SelectOptionReq {
         return etcOptionList.get(i).getOption();
     }
 
+    // 3티어 검색 있을 시절에 사용한 기능, 지금은 무조건 tier 4일 수 밖에 없음
     static public int filterTier(int tier, String itemGrade) {
         if(tier == 4) {
             return 4;

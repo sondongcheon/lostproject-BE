@@ -33,9 +33,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartInfoRes getChartInfo(int tier, String category, String grade, String value, String value2, String type, int time, int point) {
-//        StringBuilder sql = new StringBuilder(tier);
-//        sql.append("SELECT * FROM (SELECT * FROM chart_").append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE DAY(create_at) % ").append(time).append(" = DAY(NOW()) % ").append(time).append(" AND HOUR(create_at) = HOUR(NOW()) AND MINUTE(create_at) < 10 ORDER BY create_at DESC LIMIT ").append(point).append(" ) AS subquery ORDER BY create_at ASC");
-
+        // 파라미터들을 활용해서 요청한 물품의 정보를 SQL 조회
         StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE(NOW()) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
 
         sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point-1).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
@@ -45,6 +43,7 @@ public class ChartServiceImpl implements ChartService {
         List<ChartGenericEntity> result = entityManager.createNativeQuery(sql.toString(), ChartGenericEntity.class).getResultList();
         entityManager.clear();
 
+        // 조회된 SQL 을 stream 으로 우리 사이트에 맞게 가공
         List<ChartInfoRes.ChartInfo> chartInfo = result.stream()
                 .filter(Objects::nonNull)
                 .map(entity -> {
@@ -56,6 +55,9 @@ public class ChartServiceImpl implements ChartService {
                 );})
                 .toList();
 
+        /* 평균가 조회를 위한 SQL 조회
+            주간 최소/평균, 월 최소/평균 제공을 위해 총 4가지 조회를 시행
+         */
         StringBuilder Wmin = new StringBuilder("SELECT MIN(price) AS lowest_price FROM chart_");
         Wmin.append(type).append(tier).append("t_").append(category).append("_").append(grade).append("_").append(value).append(value2).append(" WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
 

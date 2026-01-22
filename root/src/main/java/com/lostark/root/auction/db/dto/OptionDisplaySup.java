@@ -7,8 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OptionDisplaySup {
 
+    /* 공식 옵션 코드와 표기 이름 ( 서포터 )
+     */
+
     IMPRESS_POWER(44, "낙인력"),
-    WEAPON_ATTACK_PERCENT(46, "무기 공격력 "),
+    WEAPON_ATTACK_PERCENT(46, "무기 공격력 "), // 이름에 의도적으로 띄어쓰기가 포함되어 있으니 주의
     SUP_IDENTITY_INCREASE(43, "세레나데, 신성, 조화 게이지 획득량 증가"),
     SUP_TEAM_ATTACK_POINT_INCREASE(51, "아군 공격력 강화 효과"),
     SUP_TEAM_DAMAGE_POINT_INCREASE(52, "아군 피해량 강화 효과"),

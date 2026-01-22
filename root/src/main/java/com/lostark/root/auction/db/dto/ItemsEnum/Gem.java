@@ -7,6 +7,10 @@ import lombok.Getter;
 @Getter
 public enum Gem implements ItemsData {
 
+    /* 젬 아이템 코드 리스트
+     * 스케쥴링으로 정보 가져오는 용도로 주로 사용
+     */
+
     GOGUB_HONDON_WAEGOK("gogub_hondon_waegok", 67410401, "고급 혼돈의 젬 : 왜곡"),
     GOGUB_HONDON_CHIMSIK("gogub_hondon_chimsik", 67410301, "고급 혼돈의 젬 : 침식"),
     GOGUB_HONDON_BUNGGWE("gogub_hondon_bunggwe", 67410501, "고급 혼돈의 젬 : 붕괴"),
@@ -28,26 +32,30 @@ public enum Gem implements ItemsData {
     YOUNGWONG_JILSEO_GYEONGO("youngwong_jilseo_gyeongo", 67400103, "영웅 질서의 젬 : 견고"),
     YOUNGWONG_JILSEO_ANJEONG("youngwong_jilseo_anjeong", 67400003, "영웅 질서의 젬 : 안정");
 
-    private final String name;
-    private final int id;
-    private final String visualName;
+    private final String name;          // DB table name
+    private final int id;               // 아이템 코드
+    private final String visualName;    // 표기 이름
 
     public String getTypeName() {
         return "gem";
     }
 
+    // 카테고리 코드, 젬
     public int getCategoryCode() {
         return 50000;
     }
 
+    // 티어 미분류
     public int getItemTier() {
         return 0;
     }
 
+    // 등급 하드코딩 바식 분류이므로 미분류
     public String getItemGrade() {
         return "";
     }
 
+    // OpenAPI 검색시 검색어로 사용되는 이름, "젬" 만 할 경우 다른 아이템이 같이 표기됨 (2중장치)
     public String getItemName() {
         return "의 젬";
     }

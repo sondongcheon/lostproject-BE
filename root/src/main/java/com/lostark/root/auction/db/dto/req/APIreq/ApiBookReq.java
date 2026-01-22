@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ApiBookReq {
 
+    /*  OpenAPI 요청 Body DTO (유물각인서)
+     */
+
     public ApiBookReq(int pageNo) {
         this.sort = "YDAY_AVG_PRICE";
         this.categoryCode = 40000;

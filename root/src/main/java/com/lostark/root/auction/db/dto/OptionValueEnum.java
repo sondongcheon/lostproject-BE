@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OptionValueEnum {
 
+    /* 연마 옵션 코드와 옵션 종류에 따른 값들
+     * OpenAPI 요청용으로 활용하거나 표기 수치를 만들어주는데 사용
+     */
+
     // 공격력%
     ATTACK_PERCENT(45, 19, "0.19%", 1, 1),
     ATTACK_PERCENT_2(45, 24, "0.24%", 2, 1),

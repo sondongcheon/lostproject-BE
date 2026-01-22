@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ApiItemsReq {
 
+    /*  OpenAPI 요청 Body DTO
+     *  거래소 아이템 요청 ( 클라이언트로 받은 종류를 가지고 Enums 을 만들어 생성자로 클래스 만듬 )
+     */
+
     public ApiItemsReq(ItemsData itemsData, int pageNo) {
 
         this.sort = "YDAY_AVG_PRICE";

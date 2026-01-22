@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CustomChartEnum {
 
+    /*  차트 스케쥴링용 Enum
+     *  DB Table 네이밍 규칙성을 담고 있어서 반복 쿼리 제작에 주로 활용
+     */
+
     T4_NECK_G_HH(1, 4, "neck", "godae", "h", "h"),
     T4_NECK_G_MM(2, 4, "neck", "godae", "m", "m"),
     T4_NECK_G_LL(3, 4, "neck", "godae", "l", "l"),

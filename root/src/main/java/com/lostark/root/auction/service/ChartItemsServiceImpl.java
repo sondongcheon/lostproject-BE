@@ -25,87 +25,46 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChartItemsServiceImpl implements ChartItemsService {
 
+    /*  주요아이템 차트에 사용되는 서비스 메소드 클래스
+     *  거래소 아이템 정보에 사용 (+ 거래소 아이템은 table 컬럼이 모두 동일)
+     */
+
     private final EntityManager entityManager;
 
-//    @Override
-//    public List<ChartItemsInfoRes> getChartBookInfo(String key) {
-//        List<String> names = List.of("adrenaline",
-//                "onehan", "yeahdun", "doldae", "jebat", "gisop",
-//                "jiljeng", "tadae", "galdae", "mahee", "supercharge",
-//                "junmon", "mahwojung", "gacksung", "gudong", "socksock",
-//                "bari", "ansang", "junggap", "jangdan", "gpta",
-//                "attar", "maxmana", "junggi");
-//
-//        List<Integer> ids = List.of(65203905,
-//                65200505, 65201005, 65203305, 65202805, 65203005,
-//                65203505, 65203705, 65201505, 65203105, 65200605,
-//                65204105, 65201305, 65203405, 65200805, 65204005,
-//                65203205, 65200405, 65202105, 65204305, 65201105,
-//                65200305, 65201205, 65200205);
-//
-//        List<ChartItemsInfoRes> chartItemsInfoResList = new ArrayList<>();
-//
-//        for(int i = 0; i < names.size(); i++){
-//            StringBuilder sql = new StringBuilder("(SELECT * FROM lostDB.chart_book_");
-//            sql.append(names.get(i)).append(" order by date desc limit ").append(10).append(") order by date asc");
-//            List<ChartItemsEntity> result = entityManager.createNativeQuery(sql.toString(), ChartItemsEntity.class).getResultList();
-//            entityManager.clear();
-//
-//            searchCurrent : for(int j = 1; j < 6; j++) {
-//
-//                Map<String, Object> books;
-//                if(key == null || key.length() < 10) books = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiBookReq(j));
-//                else {
-//                    books = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiBookReq(j), key);
-//                }
-//                List<Map<String, Object>> items = (List<Map<String, Object>>) books.get("Items");
-//                for(Map<String, Object> item : items) {
-//                    if ((int) item.get("Id") == ids.get(i)) {
-//                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, item.get("Grade").toString() + " " + item.get("Name").toString(), (int) item.get("CurrentMinPrice"), (int) item.get("RecentPrice")));
-//                        break searchCurrent;
-//                    }
-//                }
-//            }
-//
-//
-//        }
-//
-//        return chartItemsInfoResList;
-//    }
 
+    /*  차트를 그리기 위한 정보를 반환하는 서비스 메소드
+     *  최근 가격을 구하기 위한 key / 어떤 아이템인지 구분하기 위한 type / db 옵션의 time, point
+     */
     @Override
     public List<ChartItemsInfoRes> getChartInfo(String key, int type, int time, int point) {
         ItemsData[] itemsData = selectType(type);
         List<ChartItemsInfoRes> chartItemsInfoResList = new ArrayList<>();
 
         List<Map<String, Object>> apiResultList = new ArrayList<>();
-        int k = 1;
-        while(true) {
-            Map<String, Object> items;
-            if(key == null || key.length() < 10) items = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiItemsReq(itemsData[0], k));
-            else {
-                items = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiItemsReq(itemsData[0], k), key);
-            }
-            apiResultList.add(items);
-            if( (int) items.get("TotalCount") <= (k*10) ) break;
-            k++;
-        }
+        // 현재 타입의 실시간 가격 정보를 가져옴
+        currentPayList(key, itemsData[0], apiResultList);
 
-        //ChartItemsInfoRes.GoldoEvent goldoEvent = getGoldo(type, apiResultList);
-
+        // 물건마다 sql 조회 + 최종결과 만들기
         for(int i = 0; i < itemsData.length; i++){
+            //SQL문 생성, DATE(NOW()), INTERVAL 1 DAY -> 어제부터 / time -> 몇일 간격 / point -> 몇개의 결과 (limit)
             StringBuilder sql = new StringBuilder("WITH RECURSIVE date_series AS ( SELECT DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AS target_date, 0 AS step UNION ALL SELECT DATE_SUB(target_date, INTERVAL ");
 
             sql.append(time).append(" DAY), step + 1 FROM date_series WHERE step < ").append(point).append(" ) SELECT ch.* FROM date_series ds LEFT JOIN chart_")
+                    // table 이름을 완성하기 위한 append, itemsData가 interface화 되어있어 get 메소드가 자연스럽게 연결되는 구조
                     .append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName())
                     .append(" ch ON DATE(ch.date) = ds.target_date ORDER BY ds.target_date ASC");
 
-
-//            StringBuilder sql = new StringBuilder("(SELECT * FROM lostDB.chart_");
-//            sql.append(itemsData[i].getTypeName()).append("_").append(itemsData[i].getName()).append(" order by date desc limit ").append(10).append(") order by date asc");
             List<ChartItemsEntity> result = entityManager.createNativeQuery(sql.toString(), ChartItemsEntity.class).getResultList();
             entityManager.clear();
 
+            /* 반복문 설명, 현재 i 순서에 맞는 조회결과와 i 순서에 해당하는 물건의 실시간 결과를 결합하여 최종 결과를 만들어냄 ChartItemsInfoRes.fromEntity 메소드 참조
+               현재 apiResultList에는 '각인서'로 검색한 api 결과들이 들어있음, LIST인 이유는 각인서로 검색한 결과 1페이지, 2페이지 ... 이런 결과들을 다 넣었기 때문 (api 호출을 최소화 하기위한 구조)
+               searchCurrent : for(Map<String, Object> apiResult : apiResultList )는 각 페이지를 꺼냄
+
+               for(Map<String, Object> items : itemsList ) {
+                    if ((int) items.get("Id") == itemsData[i].getId())는 꺼낸 페이지에서 지금 순서에 맞는 물건을 찾아서 맞으면 메소드를 시작, 찾았으니 break
+               최초의 for문으로 돌아가서 다음 물건의 sql 조회부터 다시
+             */
             searchCurrent : for(Map<String, Object> apiResult : apiResultList ) {
                 List<Map<String, Object>> itemsList = (List<Map<String, Object>>) apiResult.get("Items");
 
@@ -113,7 +72,6 @@ public class ChartItemsServiceImpl implements ChartItemsService {
                     if ((int) items.get("Id") == itemsData[i].getId()) {
 
                         chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, itemsData[i].getVisualName(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon")));
-                        //                        chartItemsInfoResList.add(ChartItemsInfoRes.fromEntity(result, items.get("Name").toString(), (int) items.get("CurrentMinPrice"), (int) items.get("RecentPrice"), (String) items.get("Icon"), goldoEvent));
                         break searchCurrent;
                     }
                 }
@@ -124,6 +82,9 @@ public class ChartItemsServiceImpl implements ChartItemsService {
         return chartItemsInfoResList;
     }
 
+
+    /* 어떤 아이템인지 분류, type을 PathVariable로 받아옴
+     */
     private ItemsData[] selectType (int type) {
         switch (type) {
             case 1 -> {
@@ -137,28 +98,22 @@ public class ChartItemsServiceImpl implements ChartItemsService {
             }
             default -> throw new CustomException(ErrorCode.NONE_ITEM_TYPE);
         }
-
     }
 
-//    private ChartItemsInfoRes.GoldoEvent getGoldo (int type, List<Map<String, Object>> apiResultList) {
-//
-//        switch (type) {
-//            case 1 -> {
-//                int totalCurrentMinPrice = 0;
-//                for (Map<String, Object> apiResult : apiResultList) {
-//                    List<Map<String, Object>> itemsList = (List<Map<String, Object>>) apiResult.get("Items");
-//                    for (Map<String, Object> items : itemsList) {
-//                        totalCurrentMinPrice += (int) items.get("CurrentMinPrice");
-//                    }
-//                }
-//                double avgPrice = (double) totalCurrentMinPrice / 43;
-//                avgPrice = Math.round(avgPrice * 100) / 100.0;
-//                return new ChartItemsInfoRes.GoldoEvent(avgPrice);
-//
-//            }
-//            default -> {
-//                return null;
-//            }
-//        }
-//    }
+    /* 같은 종류의 현재 가격정보를 수집 ( ex. 각인서 들, 젬 들 )
+     * currentPayList 메소드를 통해 apiResultList에 저장
+     */
+    private void currentPayList(String key, ItemsData itemsData, List<Map<String, Object>> apiResultList) {
+        int k = 1;
+        while(true) {
+            Map<String, Object> items;
+            if(key == null || key.length() < 10) items = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiItemsReq(itemsData, k));
+            else {
+                items = (Map<String, Object>) ApiRequest.requestPostAPIPersonal("markets/items", new ApiItemsReq(itemsData, k), key);
+            }
+            apiResultList.add(items);
+            if( (int) items.get("TotalCount") <= (k*10) ) break;
+            k++;
+        }
+    }
 }
