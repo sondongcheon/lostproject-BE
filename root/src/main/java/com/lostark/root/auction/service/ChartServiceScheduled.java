@@ -28,17 +28,20 @@ public class ChartServiceScheduled {
     private String apikey;
 
     @Scheduled(cron = "${schedule.chart.cron}")
+    @Transactional
     protected void run() throws InterruptedException {
 
-        log.info("start Chart Info");
-        runGrade("고대");
-        Thread.sleep(60000);
-        runGrade("유물");
-
-        log.info("end Chart Info");
+        try {
+            log.info("start Chart Info");
+            runGrade("고대");
+            Thread.sleep(60000);
+            runGrade("유물");
+            log.info("end Chart Info");
+        } catch (Exception e) {
+            log.error("Scheduled task crashed", e);
+        }
     }
 
-    @Transactional
     private void runGrade(String grade) {
 
         runCategory(grade, 200010);
@@ -130,6 +133,13 @@ public class ChartServiceScheduled {
     }
 
     private void saveResult (ApiAuctionRes response, String tableName) {
+        // 26.01.23  response.getItems()가 없는 상황 발생, 없는 경우 스킵 테스트
+        if (response == null || response.getItems() == null || response.getItems().isEmpty()) {
+            log.warn("차트 악세서리 매물없음 감지. table={}, totalCount={}", tableName,
+                    response == null ? "null" : response.getTotalCount());
+            return;
+        }
+
         ApiAuctionRes.Item item = response.getItems().getFirst();
         String sql = "INSERT INTO " + tableName + " (tier, quality, upgrade, trade, price, total_count) VALUES (?, ?, ?, ?, ?, ?)";
         entityManager
