@@ -28,7 +28,6 @@ public class ChartServiceScheduled {
     private String apikey;
 
     @Scheduled(cron = "${schedule.chart.cron}")
-    @Transactional
     protected void run() throws InterruptedException {
 
         log.info("start Chart Info");
@@ -39,6 +38,7 @@ public class ChartServiceScheduled {
         log.info("end Chart Info");
     }
 
+    @Transactional
     private void runGrade(String grade) {
 
         runCategory(grade, 200010);
